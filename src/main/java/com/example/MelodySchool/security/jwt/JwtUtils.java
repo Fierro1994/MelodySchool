@@ -18,12 +18,15 @@ public class JwtUtils {
     private int jwtExpirationMs;
 
     public String generateJwtToken(StudentDetails studentDetails) {
-        return generateTokenFromUsername(studentDetails.getUsername());
+        return generateTokenFromUsername(studentDetails);
     }
 
-    private String generateTokenFromUsername(String username) {
+    private String generateTokenFromUsername(StudentDetails studentDetails) {
         return Jwts.builder()
-                .setSubject(username)
+                .setId(studentDetails.getId().toString())
+                .setSubject(studentDetails.getUsername())
+                .claim("roles", studentDetails.getAuthorities())
+                .claim("email", studentDetails.getEmail())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)

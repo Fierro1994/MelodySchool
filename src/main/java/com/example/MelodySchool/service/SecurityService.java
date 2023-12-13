@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +45,25 @@ public class SecurityService {
                 .build();
     }
 
+    public AuthResponse createUserResponse (CreateUserRequest createUserRequest) {
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                createUserRequest.getUsername(),
+                createUserRequest.getPassword()
+        ));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        StudentDetails studentDetails = (StudentDetails) authentication.getPrincipal();
+        List<String> roles = studentDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
+
+        return AuthResponse.builder()
+                .id(studentDetails.getId())
+                .token(jwtUtils.generateJwtToken(studentDetails))
+                .username(studentDetails.getUsername())
+                .email(studentDetails.getEmail())
+                .roles(roles)
+                .build();
+
+    }
     public void register(CreateUserRequest userRequest){
         var student = Student.builder()
                         .username(userRequest.getUsername())
@@ -53,6 +73,7 @@ public class SecurityService {
 
         student.setRoles(userRequest.getRoles());
         studentRepository.save(student);
+
     }
 
     public void logout(){

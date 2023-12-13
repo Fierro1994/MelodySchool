@@ -12,8 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
@@ -27,18 +27,17 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<SimpleResponse> registerStudent(@RequestBody CreateUserRequest createUserRequest){
+    public ResponseEntity<AuthResponse> registerStudent(@RequestBody CreateUserRequest createUserRequest){
        if(studentRepository.existsByUsername(createUserRequest.getUsername())){
-           throw new AlreadyExistException("Пользователь с таким логином уже существует");
+           throw new AlreadyExistException("Пользователь с таким логином уже существует" + createUserRequest.getUsername() + createUserRequest.getRoles() + createUserRequest.getPassword() + createUserRequest.getEmail());
        }
 
        if(studentRepository.existsByEmail(createUserRequest.getEmail())){
            throw new AlreadyExistException("Пользователь с таким e-mail уже существует!");
        }
         securityService.register(createUserRequest);
-        return ResponseEntity.ok(new SimpleResponse("Ученик зарегестрирован"));
+
+        return ResponseEntity.ok(securityService.createUserResponse(createUserRequest));
 
     }
-
-
 }

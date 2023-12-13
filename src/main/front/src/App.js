@@ -1,24 +1,40 @@
-import React from "react";
-import HomePage from "./pages/Home";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import Teacher from "./pages/Teacher";
-import JournalTeacher from "./pages/JournalTeacher";
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 
-
+import "react-toastify/dist/ReactToastify.css";
+import Home from "./pages/Home";
+import StudentPage from "./pages/Student";
+import TeacherPage from "./pages/Teacher"
+import Register from "./components/auth/Register";
+import Login from "./components/auth/Login";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { loadUser } from "./components/slices/authSlice";
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(loadUser(null));
+  }, [dispatch]);
+
   return (
-    <BrowserRouter>
-    <Routes>
-    <Route path="/" element={<HomePage />} />
-    <Route path="/login" element={<LoginPage />} />
-    <Route path="/register" element={<RegisterPage />} />
-    <Route path="/teacher" element={<Teacher />} />
-    <Route path="/journal_teacher" element={<JournalTeacher />} />
-    </Routes>
-    </BrowserRouter>
+    <div className="App">
+      <BrowserRouter>
+        <ToastContainer />
+        <div className="content-container">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/student/:id" element={<StudentPage/>}/>
+            <Route path="/student/" element={<StudentPage/>}/>
+            <Route path="/teacher/:id" element={<TeacherPage/>}/>
+            <Route path="/teacher/" element={<TeacherPage/>}/>
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </div>
   );
 }
 

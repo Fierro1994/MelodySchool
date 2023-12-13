@@ -134,7 +134,7 @@
 					</executions>
 				<configuration>
 					<nodeVersion>v20.9.0</nodeVersion>
-					<workingDirectory>src/main/frontend</workingDirectory>
+					<workingDirectory>src/main/front</workingDirectory>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -152,7 +152,7 @@
 							<resources>
 								<resource>
 									<directory>
-										src/main/frontend/build
+										src/main/front/build
 									</directory>
 									<filtering>true</filtering>
 								</resource>

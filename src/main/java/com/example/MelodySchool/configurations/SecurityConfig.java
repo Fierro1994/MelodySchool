@@ -52,8 +52,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((auth) ->
-                    auth.requestMatchers("/", "/signin").permitAll()
-                            .requestMatchers("/hello").hasRole("STUDENT")
+                    auth.requestMatchers("/**", "api/auth/signin").permitAll()
+                            .requestMatchers("/teacher/**").hasRole("TEACHER")
+                            .requestMatchers("/student/**").hasRole("STUDENT")
                             .anyRequest().authenticated()
                 )
                 .formLogin(Customizer.withDefaults())

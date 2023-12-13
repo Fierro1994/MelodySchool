@@ -15,10 +15,10 @@ public class SiteController {
 
     private final StudentRepository studentRepository;
     private final SecurityService securityService;
-    @GetMapping("/")
-    public String home(){
-        return "index";
-    }
+//    @GetMapping("/")
+//    public String home(){
+//        return "index";
+//    }
     @GetMapping("/register")
     public String auth(){
         return "register";

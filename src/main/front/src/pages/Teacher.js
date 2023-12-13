@@ -1,8 +1,8 @@
 import React from "react";
-import Navbar from "../components//Navbar/NavbarNoButton";
+import Navbar from "../components/Header/HeaderNoButton";
 import MainMenu from "../components/TeacherPage/MainMenu/MainMenu";
 
-const Home = () => {
+const Teacher = () => {
     return (
     <div>
   <Navbar/>
@@ -12,4 +12,5 @@ const Home = () => {
          );
 }
  
-export default Home; 
+export default Teacher; 
+

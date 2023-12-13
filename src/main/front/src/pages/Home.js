@@ -1,5 +1,5 @@
 import React from "react";
-import Navbar from "../components//Navbar/NavBar";
+import Header from "../components/Header/Header";
 import Content from "../components/Content/Content";
 import Footer from "../components/Footer/Footer";
 import PromoAction from "../components/PromoAction/PromoAction";
@@ -7,7 +7,7 @@ import PromoAction from "../components/PromoAction/PromoAction";
 const Home = () => {
     return (
     <div>
-  <Navbar/>
+  <Header/>
   <Content/>
   <PromoAction/>
   <Footer/>
