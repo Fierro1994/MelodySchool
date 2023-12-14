@@ -1,0 +1,41 @@
+.form_signin{
+    margin-left: 10vh;
+}
+.form_signin input{
+    padding: 1rem;
+    margin: 1rem;
+    width: 25rem;
+    height: 6rem;
+    background: linear-gradient(rgba(90, 88, 88, 0.164),rgba(39, 38, 38, 0.13));
+    border: .2rem solid rgb(255, 255, 255);
+    justify-content: center;
+    text-align: center;
+    font-size: 2rem;
+    border-radius: 1rem;
+    color: #ffffff;
+    transition: all .5s;
+
+}
+
+
+.btn{
+    width: 25rem;
+    height: 6rem;
+    border-radius: 1rem;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    text-align: center;
+    cursor: pointer;
+    background: linear-gradient(rgba(90, 88, 88, 0.164),rgba(39, 38, 38, 0.13));
+    border: .2rem solid rgb(255, 255, 255);
+    color: #ffffff;
+    font-size: 2rem;
+}
+ 
+.btn:hover{
+    -webkit-transition-duration: 1s; /* Safari */
+    transition-duration: 1s;
+    transition: all 2ms;
+    background-color: rgb(255, 255, 255);
+    color:rgb(0, 0, 0);
+}

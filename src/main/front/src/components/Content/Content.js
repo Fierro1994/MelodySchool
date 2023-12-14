@@ -1,6 +1,6 @@
 import style from "./Content.module.css";
 import React from "react";
-import Login from "../auth/Login";
+import Login from "../auth/Login/Login";
 
 
 const Content = ()=> {
@@ -14,9 +14,9 @@ const Content = ()=> {
                         <h2>в школу</h2>
                         <h1>Melody</h1>
                     </div>
-                    <div className={style.container_form}> <div className="form-signin">
+                    <div className={style.container_form}> 
                       <Login/>
-                    </div></div>
+                    </div>
                   </div>
               </div>
       );
