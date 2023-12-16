@@ -1,4 +1,4 @@
-package com.example.MelodySchool.models;
+package com.example.MelodySchool.models.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

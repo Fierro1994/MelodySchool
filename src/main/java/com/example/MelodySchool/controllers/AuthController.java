@@ -1,12 +1,11 @@
 package com.example.MelodySchool.controllers;
 
 import com.example.MelodySchool.exception.AlreadyExistException;
-import com.example.MelodySchool.models.AuthResponse;
-import com.example.MelodySchool.models.CreateUserRequest;
-import com.example.MelodySchool.models.LoginRequest;
-import com.example.MelodySchool.models.SimpleResponse;
-import com.example.MelodySchool.repository.StudentRepository;
-import com.example.MelodySchool.service.SecurityService;
+import com.example.MelodySchool.models.request.CreateUserRequest;
+import com.example.MelodySchool.models.request.LoginRequest;
+import com.example.MelodySchool.models.response.SimpleResponse;
+import com.example.MelodySchool.repository.UserRepository;
+import com.example.MelodySchool.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,26 +17,25 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final StudentRepository studentRepository;
-    private final SecurityService securityService;
+    private final UserRepository userRepository;
+    private final AuthService authService;
 
     @PostMapping("/signin")
-    public ResponseEntity<AuthResponse> authResponseResponse(@RequestBody LoginRequest loginRequest) {
-        return ResponseEntity.ok(securityService.authResponseStudent(loginRequest));
+    public ResponseEntity<?> authResponseResponse(@RequestBody LoginRequest loginRequest) {
+        return ResponseEntity.ok(authService.authenticateUser(loginRequest));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> registerStudent(@RequestBody CreateUserRequest createUserRequest){
-       if(studentRepository.existsByUsername(createUserRequest.getUsername())){
+    public ResponseEntity<SimpleResponse> registerStudent(@RequestBody CreateUserRequest createUserRequest){
+       if(userRepository.existsByUsername(createUserRequest.getUsername())){
            throw new AlreadyExistException("Пользователь с таким логином уже существует" + createUserRequest.getUsername() + createUserRequest.getRoles() + createUserRequest.getPassword() + createUserRequest.getEmail());
        }
 
-       if(studentRepository.existsByEmail(createUserRequest.getEmail())){
+       if(userRepository.existsByEmail(createUserRequest.getEmail())){
            throw new AlreadyExistException("Пользователь с таким e-mail уже существует!");
        }
-        securityService.register(createUserRequest);
+        authService.registerUser(createUserRequest);
 
-        return ResponseEntity.ok(securityService.createUserResponse(createUserRequest));
-
+        return ResponseEntity.ok(new SimpleResponse("register ok"));
     }
 }

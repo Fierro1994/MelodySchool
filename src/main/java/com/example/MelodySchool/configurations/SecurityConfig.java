@@ -3,7 +3,7 @@ package com.example.MelodySchool.configurations;
 
 import com.example.MelodySchool.security.jwt.AuthEntryPointJwt;
 import com.example.MelodySchool.security.jwt.JwtTokenFilter;
-import com.example.MelodySchool.service.StudentDetailsService;
+import com.example.MelodySchool.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +11,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -22,10 +21,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 
 @Configuration
-@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final StudentDetailsService studentDetailsService;
+    private final UserDetailsServiceImpl studentDetailsService;
     private final AuthEntryPointJwt authEntryPointJwt;
     private final JwtTokenFilter jwtTokenFilter;
 

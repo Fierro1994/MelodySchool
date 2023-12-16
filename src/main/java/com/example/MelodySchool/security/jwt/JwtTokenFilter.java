@@ -1,8 +1,8 @@
 package com.example.MelodySchool.security.jwt;
 
 
-import com.example.MelodySchool.service.StudentDetails;
-import com.example.MelodySchool.service.StudentDetailsService;
+import com.example.MelodySchool.service.UserDetailsImpl;
+import com.example.MelodySchool.service.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,7 +27,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final JwtUtils jwtUtils;
 
     @Autowired
-    private final StudentDetailsService studentDetailsService;
+    private final UserDetailsServiceImpl userDetailsService;
 
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader(HttpHeaders.AUTHORIZATION);
@@ -42,24 +42,24 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-       try {
+        try {
 
 
-           String jwtToken = parseJwt(request);
-           if (jwtToken != null && jwtUtils.validateJwtToken(jwtToken)) {
+            String jwtToken = parseJwt(request);
+            if (jwtToken != null && jwtUtils.validateJwtToken(jwtToken)) {
 
-               String username = jwtUtils.getUserNameFromJwtToken(jwtToken);
-               StudentDetails studentDetails = studentDetailsService.loadUserByUsername(username);
+                String username = jwtUtils.getUserNameFromJwtToken(jwtToken);
+                UserDetailsImpl userDetails = userDetailsService.loadUserByUsername(username);
 
-               UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(studentDetails, null,
-                       studentDetails.getAuthorities());
-               authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-               SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null,
+                        userDetails.getAuthorities());
+                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-           }
-       }catch (Exception e){
-           System.err.println(e.getMessage());
-       }
-       filterChain.doFilter(request, response);
+            }
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+        filterChain.doFilter(request, response);
     }
 }

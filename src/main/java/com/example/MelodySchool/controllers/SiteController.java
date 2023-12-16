@@ -1,8 +1,8 @@
 package com.example.MelodySchool.controllers;
 
 
-import com.example.MelodySchool.repository.StudentRepository;
-import com.example.MelodySchool.service.SecurityService;
+import com.example.MelodySchool.repository.UserRepository;
+import com.example.MelodySchool.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RequiredArgsConstructor
 public class SiteController {
 
-    private final StudentRepository studentRepository;
-    private final SecurityService securityService;
+    private final UserRepository userRepository;
+    private final AuthService authService;
 //    @GetMapping("/")
 //    public String home(){
 //        return "index";

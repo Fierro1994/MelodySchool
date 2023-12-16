@@ -2,7 +2,7 @@ package com.example.MelodySchool.security.jwt;
 
 import java.util.Date;
 
-import com.example.MelodySchool.service.StudentDetails;
+import com.example.MelodySchool.service.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,16 +17,13 @@ public class JwtUtils {
     @Value("${jwt.lifetime}")
     private int jwtExpirationMs;
 
-    public String generateJwtToken(StudentDetails studentDetails) {
-        return generateTokenFromUsername(studentDetails);
+    public String generateJwtToken(UserDetailsImpl userDetails) {
+        return generateTokenFromUsername(userDetails.getUsername());
     }
 
-    private String generateTokenFromUsername(StudentDetails studentDetails) {
+    public String generateTokenFromUsername(String userDetails) {
         return Jwts.builder()
-                .setId(studentDetails.getId().toString())
-                .setSubject(studentDetails.getUsername())
-                .claim("roles", studentDetails.getAuthorities())
-                .claim("email", studentDetails.getEmail())
+                .setSubject(userDetails)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)

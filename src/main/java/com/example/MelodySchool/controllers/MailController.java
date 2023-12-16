@@ -1,6 +1,6 @@
 package com.example.MelodySchool.controllers;
 
-import com.example.MelodySchool.models.MessageMail;
+import com.example.MelodySchool.models.request.MessageMail;
 import com.example.MelodySchool.service.MailSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

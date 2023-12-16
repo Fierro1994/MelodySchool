@@ -1,4 +1,4 @@
-package com.example.MelodySchool.models;
+package com.example.MelodySchool.models.request;
 
 import com.example.MelodySchool.entity.ERole;
 import lombok.*;
@@ -11,6 +11,6 @@ import java.util.Set;
 public class CreateUserRequest {
     private String username;
     private String email;
-    private Set<ERole> roles;
+    private Set<String> roles;
     private String password;
 }
