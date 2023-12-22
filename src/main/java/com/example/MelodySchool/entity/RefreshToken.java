@@ -3,7 +3,6 @@ package com.example.MelodySchool.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.io.Serializable;
 import java.time.Instant;
 
 @Entity
@@ -11,13 +10,11 @@ import java.time.Instant;
 @Data
 public class RefreshToken{
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "InvoiceWarningEvent_generator")
-    @SequenceGenerator(name="InvoiceWarningEvent_generator", sequenceName = "InvoiceWarningEvent_seq", allocationSize = 1)
-    protected Integer id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
-
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", unique = false)
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
     @Column(nullable = false, unique = true)

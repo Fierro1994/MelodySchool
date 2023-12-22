@@ -7,8 +7,11 @@ import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "../slices/authSlice";
 import { toast } from "react-toastify";
+import { resetRegistered, login, getUser } from "../slices/authSlice";
 
 const Header = ()=> {
+  const { loading, isAuthenticated, registered, isError, message, isSuccess } =
+    useSelector((state) => state.user);
   const[nav, setNav] = useState(false);
   const dispatch = useDispatch();
   const auth = useSelector((state) => state.auth);
@@ -35,16 +38,8 @@ const Header = ()=> {
                 <li>
                   <a href="/">Контакты</a>
                 </li>
-                <li>{auth._id ? (
-                     <Link onClick={() => {
-                      dispatch(logoutUser(null));
-                    }} to="/"> 
-                    Выйти
-                    </Link>     ) : (  <AuthLinks>
-                   
-                  </AuthLinks>
-                
-                )} 
+                <li>         
+              
               </li>
               </ul>
              
@@ -60,17 +55,3 @@ const Header = ()=> {
   }
   
   export default Header;
-  
-
-  const AuthLinks = styled.div`
-  a {
-    &:last-child {
-      margin-left: 2rem;
-    }
-  }
-`;
-
-const Logout = styled.div`
-  color: white;
-  cursor: pointer;
-`;

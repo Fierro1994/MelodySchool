@@ -1,13 +1,10 @@
 package com.example.MelodySchool.service;
 
 import com.example.MelodySchool.entity.RefreshToken;
-import com.example.MelodySchool.exception.TokenRefreshException;
 import com.example.MelodySchool.repository.RefreshTokenRepository;
 import com.example.MelodySchool.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -15,25 +12,19 @@ import java.util.UUID;
 
 @Service
 public class RefreshTokenService {
-
     @Autowired
     RefreshTokenRepository refreshTokenRepository;
-
     @Autowired
     UserRepository userRepository;
 
-    public RefreshToken createRefreshToken(Integer userId) {
+    public RefreshToken createRefreshToken(Long userId) {
         RefreshToken refreshToken = new RefreshToken();
-
-        refreshToken.setUser(userRepository.findById(userId));
+        refreshToken.setUser(userRepository.findById(userId).get());
         refreshToken.setExpiryDate(Instant.now().plusMillis(6000));
         refreshToken.setToken(UUID.randomUUID().toString());
-
         refreshToken = refreshTokenRepository.save(refreshToken);
         return refreshToken;
     }
-
-
 
     public Optional<RefreshToken> findByToken(String token){
         return refreshTokenRepository.findByToken(token);

@@ -4,27 +4,39 @@ import com.example.MelodySchool.entity.ERole;
 import com.example.MelodySchool.entity.RefreshToken;
 import com.example.MelodySchool.entity.Role;
 import com.example.MelodySchool.entity.User;
+import com.example.MelodySchool.exception.TokenRefreshException;
 import com.example.MelodySchool.models.request.CreateUserRequest;
 import com.example.MelodySchool.models.request.LoginRequest;
+import com.example.MelodySchool.models.request.TokenRefreshRequest;
 import com.example.MelodySchool.models.response.AuthResponse;
 import com.example.MelodySchool.models.response.MessageResponse;
+import com.example.MelodySchool.models.response.TokenRefreshResponse;
 import com.example.MelodySchool.repository.RoleRepository;
 import com.example.MelodySchool.repository.UserRepository;
 import com.example.MelodySchool.security.jwt.JwtUtils;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpCookie;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.net.http.HttpResponse;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,23 +45,19 @@ import java.util.stream.Collectors;
 public class AuthService {
     @Autowired
     AuthenticationManager authenticationManager;
-
     @Autowired
     UserRepository userRepository;
     @Autowired
     RoleRepository roleRepository;
-
-
     @Autowired
-    PasswordEncoder encoder;
-
+    BCryptPasswordEncoder encoder;
     @Autowired
     JwtUtils jwtUtils;
-
     @Autowired
     RefreshTokenService refreshTokenService;
+    Cookie cookie;
 
-    public ResponseEntity<AuthResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<AuthResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
 
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
@@ -57,17 +65,26 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-
         String jwt = jwtUtils.generateJwtToken(userDetails);
-
-        List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
-                .collect(Collectors.toList());
-
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
 
-        return ResponseEntity.ok(new AuthResponse(jwt, refreshToken.getToken(), userDetails.getId(),
-                userDetails.getUsername(), userDetails.getEmail(), roles));
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(item -> item.getAuthority())
+                .collect(Collectors.toList());
+        cookie = new Cookie("refresh", refreshToken.getToken());
+        cookie.setMaxAge(7 * 24 * 60 * 60);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setSecure(true);
+        response.addCookie(cookie);
+        return ResponseEntity.ok()
+                .body(new AuthResponse(jwt,
+                        userDetails.getId(),
+                        userDetails.getUsername(),
+                        userDetails.getEmail(),
+                        roles));
     }
+
     public ResponseEntity<?> registerUser(@Valid @RequestBody CreateUserRequest createUserRequest) {
         if (userRepository.existsByUsername(createUserRequest.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
@@ -77,7 +94,6 @@ public class AuthService {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
         }
 
-        // Create new user's account
         User user = new User(createUserRequest.getUsername(),
                 createUserRequest.getEmail(),
                 encoder.encode(createUserRequest.getPassword()));
@@ -118,10 +134,13 @@ public class AuthService {
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
+
+
     public void logout(){
+
         var currentPrincipal = new  SecurityContextHolder().getContext().getAuthentication().getPrincipal();
         if (currentPrincipal instanceof UserDetailsImpl userDetails){
-            Integer userid = userDetails.getId();
+            Long userid = userDetails.getId();
         }
     }
 }

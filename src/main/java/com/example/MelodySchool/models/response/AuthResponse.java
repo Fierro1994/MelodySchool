@@ -11,9 +11,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Builder
 public class AuthResponse {
-    private String acesstoken;
-    private String refreshToken;
-    private Integer id;
+    private String accessToken;
+    private Long id;
     private String username;
     private String email;
     private List<String> roles;

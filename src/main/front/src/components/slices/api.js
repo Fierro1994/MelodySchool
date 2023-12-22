@@ -4,6 +4,7 @@ export const setHeaders = () => {
   const headers = {
     headers: {
       "Bearer ": localStorage.getItem("token"),
+      
     },
   };
 

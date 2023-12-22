@@ -9,20 +9,13 @@ import java.io.Serializable;
 @Entity
 @Table(name = "Roles")
 @NoArgsConstructor
-@Getter
-@Setter
-public class Role extends IdBasedEntity implements Serializable {
+@Data
+public class Role {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    private static final long serialVersionUID = 1L;
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private ERole name;
-
-    public Role(ERole name) {
-        this.name = name;
-    }
-
-    public ERole getName() {
-        return name;
-    }
 }

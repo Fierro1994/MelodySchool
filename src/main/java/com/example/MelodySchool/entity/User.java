@@ -20,17 +20,19 @@ import lombok.*;
                 @UniqueConstraint(columnNames = "username"),
                 @UniqueConstraint(columnNames = "email")
         })
-public class User extends IdBasedEntity implements Serializable {
+public class User {
 
     private static final long serialVersionUID = 1L;
 
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
     private String username;
 
     private String email;
     private String password;
 
-    @ManyToMany(cascade = CascadeType.MERGE,fetch = FetchType.LAZY)
+    @ManyToMany(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))

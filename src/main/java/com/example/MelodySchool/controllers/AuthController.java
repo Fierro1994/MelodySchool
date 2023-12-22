@@ -3,16 +3,20 @@ package com.example.MelodySchool.controllers;
 import com.example.MelodySchool.exception.AlreadyExistException;
 import com.example.MelodySchool.models.request.CreateUserRequest;
 import com.example.MelodySchool.models.request.LoginRequest;
+import com.example.MelodySchool.models.request.TokenRefreshRequest;
+import com.example.MelodySchool.models.response.AuthResponse;
 import com.example.MelodySchool.models.response.SimpleResponse;
 import com.example.MelodySchool.repository.UserRepository;
 import com.example.MelodySchool.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@CrossOrigin(origins = "*")
+@CrossOrigin
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
@@ -20,9 +24,12 @@ public class AuthController {
     private final UserRepository userRepository;
     private final AuthService authService;
 
+
+
+
     @PostMapping("/signin")
-    public ResponseEntity<?> authResponseResponse(@RequestBody LoginRequest loginRequest) {
-        return ResponseEntity.ok(authService.authenticateUser(loginRequest));
+    public ResponseEntity<?> authResponseResponse(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+        return ResponseEntity.ok(authService.authenticateUser(loginRequest, response));
     }
 
     @PostMapping("/register")
@@ -38,4 +45,11 @@ public class AuthController {
 
         return ResponseEntity.ok(new SimpleResponse("register ok"));
     }
+
+@GetMapping("/logout")
+    public void logout(){
+        authService.logout();
+    }
+
+
 }

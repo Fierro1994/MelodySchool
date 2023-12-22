@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @RequiredArgsConstructor
-@NoArgsConstructor
 public class MessageMail {
     private String name;
     private String numberPhone;

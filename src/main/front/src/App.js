@@ -14,10 +14,6 @@ import { loadUser } from "./components/slices/authSlice";
 function App() {
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(loadUser(null));
-  }, [dispatch]);
-
   return (
     <div className="App">
       <BrowserRouter>

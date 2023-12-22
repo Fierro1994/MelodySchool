@@ -1,9 +1,11 @@
 import style from "./Content.module.css";
 import React from "react";
 import Login from "../auth/Login/Login";
+import { useSelector, useDispatch } from "react-redux";
 
 
 const Content = ()=> {
+  const { isAuthenticated } = useSelector((state) => state.user);
       return (
 
               <div className={style.content}>
@@ -15,7 +17,8 @@ const Content = ()=> {
                         <h1>Melody</h1>
                     </div>
                     <div className={style.container_form}> 
-                      <Login/>
+                    {isAuthenticated ? <div></div> :  <Login/>}
+                     
                     </div>
                   </div>
               </div>

@@ -1,66 +1,127 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { registerUser } from "../slices/authSlice";
+import React from "react";
+import { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Navigate, Link } from "react-router-dom";
+import { register } from "../slices/authSlice";
 
 const Register = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const auth = useSelector((state) => state.auth);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
-  const [user, setUser] = useState({
-    username: "",
+  const { registered, loading, isError, message } = useSelector(
+    (state) => state.user
+  );
+
+  const dispatch = useDispatch();
+
+  const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
-    roles:[""]
+    re_password: "",
+    error: "",
   });
 
-  useEffect(() => {
-    if (auth._id) {
-      navigate("/teacher");
-    }
-  }, [auth._id, navigate]);
+  const { name, email, password, re_password } = formData;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    console.log(user);
-    dispatch(registerUser(user));
+  const onChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const onSubmit = (e) => {
+    e.preventDefault();
+
+    if (password === re_password) {
+      dispatch(register({ name, email, password }));
+
+      if (isError) {
+        setFormData({
+          ...formData,
+          error: message,
+        });
+      }
+    } else {
+      setFormData({
+        ...formData,
+        error: "Please enter a password matching re_password",
+      });
+    }
+  };
+
+  if (registered) return <Navigate to="/login" />;
+
   return (
-    <>
-      <form onSubmit={handleSubmit}>
-        <h2>Register</h2>
-        <input
-          type="text"
-          placeholder="username"
-          name="username"
-          onChange={(e) => setUser({ ...user, username: e.target.value })}
-        />
-        <input
-          type="email"
-          placeholder="email"
-          onChange={(e) => setUser({ ...user, email: e.target.value })}
-        />
-        <input
-          type="text"
-          placeholder="roles"
-          onChange={(e) => setUser({ ...user, roles: [e.target.value] })}
-        />
-        <input
-          type="password"
-          placeholder="password"
-          onChange={(e) => setUser({ ...user, password: e.target.value })}
-        />
-        <button>
-          {auth.rigisterStatus === "pending" ? "Submitting..." : "Register"}
-        </button>
-        {auth.registerStatus === "rejected" ? (
-          <p>{auth.registerError}</p>
-        ) : null}
+    <div className="container mt-5">
+      <h1>Register for an Account</h1>
+      <p>Create an account with our Session Auth application</p>
+      <form onSubmit={(e) => onSubmit(e)}>
+        <div className="form-group">
+          <label className="form-label">Name: </label>
+          <input
+            className="form-control"
+            type="text"
+            placeholder="name*"
+            name="name"
+            onChange={(e) => onChange(e)}
+            value={name}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label className="form-label mt-3">email </label>
+          <input
+            className="form-control"
+            type="email"
+            placeholder="Email*"
+            name="email"
+            onChange={(e) => onChange(e)}
+            value={email}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label className="form-label mt-3">Password: </label>
+          <input
+            className="form-control"
+            type="password"
+            placeholder="Password*"
+            name="password"
+            onChange={(e) => onChange(e)}
+            value={password}
+            minLength="6"
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label className="form-label mt-3">Confirm Password: </label>
+          <input
+            className="form-control"
+            type="password"
+            placeholder="Confirm Password*"
+            name="re_password"
+            onChange={(e) => onChange(e)}
+            value={re_password}
+            minLength="6"
+            required
+          />
+        </div>
+        {/* Muestra el mensaje de error */}
+        {formData.error && <p className="text-danger">{formData.error}</p>}{" "}
+        {loading ? (
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading ...</span>
+          </div>
+        ) : (
+          <button className="btn btn-primary mt-3" type="submit">
+            Register
+          </button>
+        )}
       </form>
-    </>
+      <p className="mt-3">
+        Already have an Account? <Link to="/login">Sign In</Link>
+      </p>
+    </div>
   );
 };
 
