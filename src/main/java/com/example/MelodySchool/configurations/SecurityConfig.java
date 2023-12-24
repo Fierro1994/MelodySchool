@@ -22,12 +22,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
-import java.util.Collections;
 
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -56,37 +51,26 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://localhost:3000"));
-        configuration.setAllowedMethods(Collections.singletonList("*"));
-        configuration.setAllowedHeaders(Collections.singletonList("*"));
-        configuration.setAllowCredentials(true);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         CookieClearingLogoutHandler cookies = new CookieClearingLogoutHandler("refresh");
-        http
-                .cors(Customizer.withDefaults())
+        http.csrf(AbstractHttpConfigurer::disable)
+                .exceptionHandling(configurer -> configurer.authenticationEntryPoint(authEntryPointJwt))
+                .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((auth) ->
-                    auth.requestMatchers("/**", "/api/auth/signin").permitAll()
-                            .requestMatchers("/teacher/**").hasRole("TEACHER")
-                            .requestMatchers("/student/**").hasRole("STUDENT")
+                    auth.requestMatchers("/static/**","/*","/app/login/**", "/api/auth/refresh/**", "/api/auth/signin/**").permitAll()
+                            .requestMatchers("/app/teacher").hasRole("TEACHER")
+                            .requestMatchers("/app/student").hasRole("STUDENT")
                             .anyRequest().authenticated()
                 )
+                .authenticationProvider(daoAuthenticationProvider())
+                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout((logout) -> logout.logoutUrl("/api/auth/logout/"))
                 .logout((logout) -> logout.addLogoutHandler(cookies))
                 .logout((logout) -> logout.logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler()))
-                .exceptionHandling(configurer -> configurer.authenticationEntryPoint(authEntryPointJwt))
-                .csrf(AbstractHttpConfigurer::disable)
-                .httpBasic(Customizer.withDefaults())
-                .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(daoAuthenticationProvider())
-                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+                .httpBasic(Customizer.withDefaults());
+
 
         return http.build();
 

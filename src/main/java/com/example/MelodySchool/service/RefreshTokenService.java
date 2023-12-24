@@ -5,7 +5,6 @@ import com.example.MelodySchool.repository.RefreshTokenRepository;
 import com.example.MelodySchool.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.WebUtils;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -31,6 +30,9 @@ public class RefreshTokenService {
         return refreshTokenRepository.findByToken(token);
     }
 
+    public Optional<RefreshToken> findTokenById(UserDetailsImpl userDetails){
+        return refreshTokenRepository.findById(userDetails.getId());
+    }
     public RefreshToken verifyExpiration(RefreshToken token){
         if(token.getExpiryDate().compareTo(Instant.now())<0){
             refreshTokenRepository.delete(token);

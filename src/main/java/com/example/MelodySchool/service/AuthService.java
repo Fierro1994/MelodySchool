@@ -4,18 +4,15 @@ import com.example.MelodySchool.entity.ERole;
 import com.example.MelodySchool.entity.RefreshToken;
 import com.example.MelodySchool.entity.Role;
 import com.example.MelodySchool.entity.User;
-import com.example.MelodySchool.exception.TokenRefreshException;
 import com.example.MelodySchool.models.request.CreateUserRequest;
 import com.example.MelodySchool.models.request.LoginRequest;
-import com.example.MelodySchool.models.request.TokenRefreshRequest;
 import com.example.MelodySchool.models.response.AuthResponse;
 import com.example.MelodySchool.models.response.MessageResponse;
-import com.example.MelodySchool.models.response.TokenRefreshResponse;
+import com.example.MelodySchool.repository.RefreshTokenRepository;
 import com.example.MelodySchool.repository.RoleRepository;
 import com.example.MelodySchool.repository.UserRepository;
 import com.example.MelodySchool.security.jwt.JwtUtils;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -28,20 +25,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.util.WebUtils;
 
-import java.io.IOException;
-import java.net.http.HttpResponse;
-import java.sql.Ref;
+
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Service
 @RequiredArgsConstructor
@@ -52,6 +43,8 @@ public class AuthService {
     UserRepository userRepository;
     @Autowired
     RoleRepository roleRepository;
+    @Autowired
+    RefreshTokenRepository refreshTokenRepository;
     @Autowired
     BCryptPasswordEncoder encoder;
     @Autowired
@@ -69,17 +62,20 @@ public class AuthService {
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         String jwt = jwtUtils.generateJwtToken(userDetails);
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
-
+        RefreshToken oldRefreshJwt = refreshTokenService.findTokenById(userDetails).get();
+        if(oldRefreshJwt == null){
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
+            cookie = new Cookie("refresh", refreshToken.getToken());
+            cookie.setMaxAge(7 * 24 * 60 * 60);
+            cookie.setHttpOnly(true);
+            cookie.setPath("/api/auth/refresh");
+            cookie.setSecure(true);
+            response.addCookie(cookie);
+        }
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
-        cookie = new Cookie("refresh", refreshToken.getToken());
-        cookie.setMaxAge(7 * 24 * 60 * 60);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/api/auth/refresh");
-        cookie.setSecure(true);
-        response.addCookie(cookie);
+
         return ResponseEntity.ok()
                 .body(new AuthResponse(jwt,
                         userDetails.getId(),

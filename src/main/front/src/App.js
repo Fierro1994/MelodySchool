@@ -17,12 +17,12 @@ function App() {
         <div className="content-container">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/student/:id" element={<StudentPage/>}/>
-            <Route path="/student/" element={<StudentPage/>}/>
-            <Route path="/teacher/:id" element={<TeacherPage/>}/>
-            <Route path="/teacher/" element={<TeacherPage/>}/>
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
+            <Route path="/app/student/:id" element={<StudentPage/>}/>
+            <Route path="/app/student/" element={<StudentPage/>}/>
+            <Route path="/app/teacher/:id" element={<TeacherPage/>}/>
+            <Route path="/app/teacher/" element={<TeacherPage/>}/>
+            <Route path="/app/register" element={<Register />} />
+            <Route path="/app/login" element={<Login />} />
           </Routes>
         </div>
       </BrowserRouter>
