@@ -14,6 +14,7 @@ import lombok.*;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(	name = "users",
         uniqueConstraints = {
@@ -25,10 +26,11 @@ public class User {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String username;
-
+    private String firstName;
+    private String lastName;
     private String email;
     private String password;
 
@@ -37,6 +39,8 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
+    private Boolean enabled;
+
 
     public User(String username, String email, String password) {
         this.username = username;

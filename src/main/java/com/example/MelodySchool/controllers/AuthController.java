@@ -59,6 +59,9 @@ public class AuthController {
         authService.logout();
     }
 
-
+    @GetMapping(path = "/confirm")
+    public String confirm(@RequestParam("token") String token) {
+        return authService.confirmToken(token);
+    }
 
 }
