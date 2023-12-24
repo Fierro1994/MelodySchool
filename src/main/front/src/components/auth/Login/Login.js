@@ -1,12 +1,12 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { resetRegistered, login } from "../../slices/authSlice";
+import {login, logoutUserRed, loginUserRed } from "../../slices/authSlice";
 import { Link, Navigate } from "react-router-dom";
 
 function Login() {
   const { loading,  registered, isError, message, isSuccess } =
-    useSelector((state) => state.user);
+    useSelector((state) => state.auth);
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -15,7 +15,7 @@ function Login() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (registered) dispatch(resetRegistered());
+    if (registered) dispatch(logoutUserRed);
   }, [isError, isSuccess, message]);
 
   const { username, password } = formData;

@@ -1,21 +1,23 @@
-import React, { useState } from "react";
+import React, {useEffect, useState } from "react";
 import style from './Headeer.module.css';
-import styled from "styled-components";
 import Logo from "../../assets/logo.png";
 import {AiOutlineMenu, AiOutlineClose} from 'react-icons/ai'; 
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { logoutUser } from "../slices/authSlice";
-import { toast } from "react-toastify";
-import { resetRegistered, login, getUser } from "../slices/authSlice";
+
 
 const Header = ()=> {
-  const { loading, isAuthenticated, registered, isError, message, isSuccess } =
-    useSelector((state) => state.user);
+  const {accessToken}  = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+  useEffect(() => {
+    if(accessToken=== null){
+        navigate("/")
+    }
+})
+
+
   const[nav, setNav] = useState(false);
-  const dispatch = useDispatch();
-  const auth = useSelector((state) => state.auth);
-  console.log(auth);
+ 
     return (
       <header className={style.header}>
           <div className="container2">
@@ -38,7 +40,14 @@ const Header = ()=> {
                 <li>
                   <a href="/">Контакты</a>
                 </li>
-                <li>         
+                <li>      
+                <div className="ms-auto">
+              {accessToken ? (
+               <div>залогинен</div>
+              ) : (
+                <div>не залогинен</div>
+              )}
+            </div>  
               
               </li>
               </ul>

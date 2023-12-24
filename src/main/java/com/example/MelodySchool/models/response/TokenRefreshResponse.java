@@ -11,6 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class TokenRefreshResponse {
     private String accessToken;
-    private String refreshToken;
 
 }

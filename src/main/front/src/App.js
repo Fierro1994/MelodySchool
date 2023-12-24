@@ -7,13 +7,9 @@ import StudentPage from "./pages/Student";
 import TeacherPage from "./pages/Teacher"
 import Register from "./components/auth/Register";
 import Login from "./components/auth/Login/Login";
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { loadUser } from "./components/slices/authSlice";
+
 
 function App() {
-  const dispatch = useDispatch();
-
   return (
     <div className="App">
       <BrowserRouter>

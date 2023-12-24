@@ -4,7 +4,7 @@ import authService from "../services/authService";
 
 const initialState = {
   isAuthenticated: false,
-  user: null,
+  accessToken: localStorage.getItem("access"),
   registered: false,
   isError: false,
   loading: false,
@@ -79,8 +79,6 @@ export const tokenRefresh = createAsyncThunk(
           const response = await axios.post("/refresh", {
               token: token
           })
-          console.log(token)
-          console.log(response.data)
           return await response.data;
       } catch (error) {
           if (!error.response) {
@@ -91,17 +89,18 @@ export const tokenRefresh = createAsyncThunk(
   }
 );
 
-const authSlice = createSlice({
-  name: "users",
+export const authSlice = createSlice({
+  name: 'auth',
   initialState,
   reducers: {
-    resetRegistered: (state) => {
-      state.registered = false;
-      state.isError = false;
-      state.loading = false;
-      state.isSuccess = false;
-      state.message = "";
+    loginUserRed: (state, action) => {
+      state.accessToken = action.payload.body.accessToken;
     },
+    logoutUserRed: (state) => {
+      state.accessToken = undefined;
+
+    },
+  
   },
   extraReducers: (builder) => {
     builder
@@ -121,15 +120,17 @@ const authSlice = createSlice({
       .addCase(login.pending, (state) => {
         state.loading = true;
       })
-      .addCase(login.fulfilled, (state) => {
+      .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
         state.isSuccess = true;
+        state.accessToken = action.payload.body.accessToken;
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.isError = true;
         state.message = action.payload;
+        state.accessToken = "";
       })
       .addCase(logout.pending, (state) => {
         state.loading = true;
@@ -145,5 +146,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { resetRegistered } = authSlice.actions;
+export const {loginUserRed, logoutUserRed } = authSlice.actions;
 export default authSlice.reducer;

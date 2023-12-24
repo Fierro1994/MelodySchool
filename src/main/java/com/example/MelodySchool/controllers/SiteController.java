@@ -21,14 +21,9 @@ public class SiteController {
 //    }
     @GetMapping("/register")
     public String auth(){
-        return "register";
+        return "";
     }
 
-    @GetMapping("/teacher")
-    @PreAuthorize("hasRole('TEACHER')")
-    public String userAccess() {
-        return "teacher";
-    }
 
     @GetMapping("/registerstudent")
     public String register() {

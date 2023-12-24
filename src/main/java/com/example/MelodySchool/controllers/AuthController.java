@@ -4,8 +4,8 @@ import com.example.MelodySchool.exception.AlreadyExistException;
 import com.example.MelodySchool.models.request.CreateUserRequest;
 import com.example.MelodySchool.models.request.LoginRequest;
 import com.example.MelodySchool.models.request.TokenRefreshRequest;
-import com.example.MelodySchool.models.response.AuthResponse;
 import com.example.MelodySchool.models.response.SimpleResponse;
+import com.example.MelodySchool.models.response.TokenRefreshResponse;
 import com.example.MelodySchool.repository.UserRepository;
 import com.example.MelodySchool.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,8 +45,17 @@ public class AuthController {
 
         return ResponseEntity.ok(new SimpleResponse("register ok"));
     }
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshtoken(HttpServletRequest request) {
+        try {
+            return ResponseEntity.ok(authService.refreshToken(request));
+        }
+        catch (Exception e){
+            return ResponseEntity.ok(new SimpleResponse(e+ "refresh error"));
+        }
 
-@GetMapping("/logout")
+    }
+@PostMapping("/logout")
     public void logout(){
         authService.logout();
     }

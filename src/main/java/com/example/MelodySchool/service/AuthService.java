@@ -21,24 +21,27 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpCookie;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.util.WebUtils;
 
+import java.io.IOException;
 import java.net.http.HttpResponse;
+import java.sql.Ref;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Service
 @RequiredArgsConstructor
@@ -74,7 +77,7 @@ public class AuthService {
         cookie = new Cookie("refresh", refreshToken.getToken());
         cookie.setMaxAge(7 * 24 * 60 * 60);
         cookie.setHttpOnly(true);
-        cookie.setPath("/");
+        cookie.setPath("/api/auth/refresh");
         cookie.setSecure(true);
         response.addCookie(cookie);
         return ResponseEntity.ok()
@@ -134,7 +137,24 @@ public class AuthService {
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
+    public ResponseEntity<?> refreshToken(@RequestBody HttpServletRequest request){
+        return refreshTokenService.findByToken(WebUtils.getCookie(request, "refresh").getValue())
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String accessToken= jwtUtils.generateTokenFromUsername(user.getUsername());
+                    RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
+                    ResponseCookie cookie = ResponseCookie.from("refresh", refreshToken.getToken())
+                            .path("/api/auth/refresh")
+                            .httpOnly(true)
+                            .secure(true)
+                            .build();
+                    return ResponseEntity.ok()
+                            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                            .body(accessToken);
+                }).orElseThrow(()->new RuntimeException("Refresh token is not in database!.." + WebUtils.getCookie(request, "refresh").getValue()));
 
+    }
 
     public void logout(){
 
