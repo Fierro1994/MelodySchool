@@ -39,3 +39,11 @@
     background-color: rgb(255, 255, 255);
     color:rgb(0, 0, 0);
 }
+.textBottom{
+    padding-top: 10px;
+    font-size: 12px;
+}
+.textBottom a{
+    text-decoration: none;
+    color: #ffffff;
+}

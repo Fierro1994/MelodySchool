@@ -5,8 +5,9 @@ import { useSelector, useDispatch } from "react-redux";
 
 
 const Content = ()=> {
+ 
   
-  const { accessToken, isLoading, isError, message, isAuthenticated } = useSelector((state) => state.auth);
+  const { accessToken, isLoading, isError, message, isAuthenticated } = useSelector(state => state.auth);
       return (
 
               <div className={style.content}>
@@ -18,7 +19,7 @@ const Content = ()=> {
                         <h1>Melody</h1>
                     </div>
                     <div className={style.container_form}> 
-                    {accessToken? <div></div> :  <Login/>}
+                    {isAuthenticated? <div></div> :  <Login/>}
                      
                     </div>
                   </div>

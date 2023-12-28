@@ -10,31 +10,39 @@ const Register = () => {
   }, []);
 
   const { registered, loading, isError, message } = useSelector(
-    (state) => state.user
+    (state) => state.auth
   );
 
   const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
-    name: "",
+    firstName:"",
+    lastName: "",
+    username: "",
     email: "",
     password: "",
     re_password: "",
+    roles: [],
     error: "",
   });
 
-  const { name, email, password, re_password } = formData;
+  const { firstName, lastName, username, email, password, re_password, roles} = formData;
+
 
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (e.target.name === "roles"){
+      setFormData({ ...formData, [e.target.name]: [e.target.value ]});
+    }
+   
+    console.log(formData);
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
 
     if (password === re_password) {
-      dispatch(register({ name, email, password }));
-
+      dispatch(register({ firstName, lastName,username, email, password, roles }));
       if (isError) {
         setFormData({
           ...formData,
@@ -48,23 +56,46 @@ const Register = () => {
       });
     }
   };
-
-  if (registered) return <Navigate to="/login" />;
+ 
+  if (registered) return <Navigate to="/" />;
 
   return (
     <div className="container mt-5">
-      <h1>Register for an Account</h1>
-      <p>Create an account with our Session Auth application</p>
+      <h1>Регистрация аккаунта</h1>
       <form onSubmit={(e) => onSubmit(e)}>
-        <div className="form-group">
-          <label className="form-label">Name: </label>
+      <div className="form-group">
+          <label className="form-label">Имя: </label>
           <input
             className="form-control"
             type="text"
-            placeholder="name*"
-            name="name"
+            placeholder="firstName*"
+            name="firstName"
             onChange={(e) => onChange(e)}
-            value={name}
+            value={firstName}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label className="form-label">Фамилия: </label>
+          <input
+            className="form-control"
+            type="text"
+            placeholder="lastName*"
+            name="lastName"
+            onChange={(e) => onChange(e)}
+            value={lastName}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label className="form-label">Логин: </label>
+          <input
+            className="form-control"
+            type="text"
+            placeholder="username*"
+            name="username"
+            onChange={(e) => onChange(e)}
+            value={username}
             required
           />
         </div>
@@ -81,7 +112,7 @@ const Register = () => {
           />
         </div>
         <div className="form-group">
-          <label className="form-label mt-3">Password: </label>
+          <label className="form-label mt-3">Пароль: </label>
           <input
             className="form-control"
             type="password"
@@ -89,12 +120,12 @@ const Register = () => {
             name="password"
             onChange={(e) => onChange(e)}
             value={password}
-            minLength="6"
+            minLength="1"
             required
           />
         </div>
         <div className="form-group">
-          <label className="form-label mt-3">Confirm Password: </label>
+          <label className="form-label mt-3">Повторите пароль: </label>
           <input
             className="form-control"
             type="password"
@@ -102,7 +133,20 @@ const Register = () => {
             name="re_password"
             onChange={(e) => onChange(e)}
             value={re_password}
-            minLength="6"
+            minLength="1"
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label className="form-label mt-3">Роль: </label>
+          <input
+            className="form-control"
+            type="text"
+            placeholder="roles"
+            name="roles"
+            onChange={e => onChange(e)} 
+            value={roles}
+            minLength="1"
             required
           />
         </div>

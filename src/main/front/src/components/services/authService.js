@@ -1,4 +1,6 @@
 import axios from "axios";
+import { logoutUserRed } from "../slices/authSlice";
+import { compose } from "@reduxjs/toolkit";
 
 const REGISTER_URL = "/api/auth/register";
 const LOGIN_URL = "/api/auth/signin";
@@ -14,7 +16,6 @@ instance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access');
     if (token) {
-      console.log(token)
       config.headers['Authorization'] = `Bearer ${token}`;
     }
     return config;
@@ -65,6 +66,23 @@ const login = async (userData) => {
   
  
   if (response.data) {
+    console.log(response.data);
+    localStorage.setItem("access", response.data.body.accessToken, {
+    });
+  }
+  
+  return response.data;
+};
+
+const rolesUser = async () => {
+
+  const response = await instance.get("/app/student/**",{
+    
+  });
+  
+ 
+  if (response.data) {
+    console.log(response.data);
     localStorage.setItem("access", response.data.body.accessToken, {
     });
   }
@@ -73,13 +91,24 @@ const login = async (userData) => {
 };
 
 
+const refresh = async () => {
+
+  const response = await instance.post("/api/auth/refresh",{
+    withCredentials:true,
+  });
+  console.log(response);
+  localStorage.setItem("access",response.data.body.accessToken )
+  return response.data;
+};
+
 const logout = async () => {
+    instance.get("/api/auth/logout")
     localStorage.setItem("access", "", {
   });
 };
 
 
 
-const authService = { register, login, logout};
+const authService = { refresh,register, login, logout};
 
 export default authService;

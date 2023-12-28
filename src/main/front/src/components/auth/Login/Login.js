@@ -2,7 +2,9 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {login, logoutUserRed, loginUserRed } from "../../slices/authSlice";
+import style from "./login.module.css";
 import { Link, Navigate } from "react-router-dom";
+import validator from 'validator';
 
 function Login() {
   const { loading,  registered, isError, message, isSuccess } =
@@ -37,53 +39,56 @@ function Login() {
     }
   };
 
- 
+ const escapeAndTrim = (str) => {
+ str
+   .replace(/[<>&'"/]/g, '')
+   .replace(/\s{2,}/g, ' ')
+   .trim()
+}
+
 
   return (
-    <div className="container mt-5">
-      <h1>Sing In</h1>
-      <p>Sing Into Your Session Auth Account</p>
-      <form onSubmit={(e) => onSubmit(e)}>
-        <div className="form-group">
-          <label className="form-label">email: </label>
-          <input
-            className="form-control"
-            type="text"
-            placeholder="username*"
-            name="username"
-            onChange={(e) => onChange(e)}
-            value={username}
-            required
-          />
+    <>
+  <div className={style.form_signin}>
+    <form onSubmit={(e) => onSubmit(e)}>
+      <div>
+        <input
+          type="text"
+          placeholder="Логин*"
+          name="username"
+          onChange={(e) => onChange(e)}
+          value={username}
+          required
+        />
         </div>
-        <div className="form-group">
-          <label className="form-label mt-3">Password: </label>
-          <input
-            className="form-control"
-            type="password"
-            placeholder="Password*"
-            name="password"
-            onChange={(e) => onChange(e)}
-            value={password}
-            required
-          />
+        <div>
+        <input
+          type="password"
+          placeholder="Пароль*"
+          name="password"
+          onChange={(e) => onChange(e)}
+          value={password}
+          required
+        />
         </div>
-        {/* error */}
-        {formData.error && <p className="text-danger">{formData.error}</p>}{" "}
-        {loading ? (
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading ...</span>
-          </div>
-        ) : (
-          <button className="btn btn-primary mt-3" type="submit">
-            Login
-          </button>
-        )}
-      </form>
-      <p className="mt-3">
-        Don't have an Account? <Link to="/register">Sign Up</Link>
-      </p>
+      {/* error */}
+      {formData.error && <p className="text-danger">Ошибка доступа</p>}{" "}
+      {loading ? (
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">загрузка ...</span>
+        </div>
+      ) : (
+        <button className={style.btn} type="submit">
+          Войти
+        </button>
+      )}
+    </form>
+    <div className={style.textBottom}>
+      Ещё нет аккаунта? <a href="/">зарегестрируйтесь</a>
     </div>
+    
+  </div>
+  </>
   );
 }
 export default Login;

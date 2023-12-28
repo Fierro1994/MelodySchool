@@ -9,14 +9,20 @@ const initialState = {
   isError: false,
   loading: false,
   isSuccess: false,
+  isEnabled: false,
   message: "",
+  firstName:"",
+  lastName:"",
+  roles: []
 };
-
 
 export const register = createAsyncThunk(
   "users/register",
-  async ({ username, email, password, roles }, thunkAPI) => {
+  async ({ firstName, lastName, username, email, password, roles }, thunkAPI) => {
+   
     const userData = JSON.stringify({
+      firstName,
+      lastName,
       email,
       username,
       password,
@@ -72,7 +78,7 @@ export const logout = createAsyncThunk("users/logout", (_, thunkAPI) => {
 });
 
 export const tokenRefresh = createAsyncThunk(
-  "tokenRefresh",
+  "users/refresh",
   async (token, { rejectWithValue }) => {
       try {
           
@@ -89,6 +95,7 @@ export const tokenRefresh = createAsyncThunk(
   }
 );
 
+
 export const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -97,8 +104,8 @@ export const authSlice = createSlice({
       state.accessToken = action.payload.body.accessToken;
     },
     logoutUserRed: (state) => {
-      state.accessToken = undefined;
-
+      state.accessToken = "";
+      state.isAuthenticated = false;
     },
   
   },
@@ -124,7 +131,9 @@ export const authSlice = createSlice({
         state.loading = false;
         state.isAuthenticated = true;
         state.isSuccess = true;
-        state.accessToken = action.payload.body.accessToken;
+        console.log(action.payload.body.accessToken);
+        state.accessToken = localStorage.getItem("access");
+        state.isEnabled = action.payload.body.isEnabled;
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -132,12 +141,24 @@ export const authSlice = createSlice({
         state.message = action.payload;
         state.accessToken = "";
       })
+      .addCase(tokenRefresh.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(tokenRefresh.fulfilled, (state, action) => {
+        state.loading = false;
+        console.log("dfsdfsdf");
+        state.accessToken = localStorage.getItem("access");
+        state.isAuthenticated = true;
+      })
+      .addCase(tokenRefresh.rejected, (state) => {
+        state.loading = false;
+      })
       .addCase(logout.pending, (state) => {
         state.loading = true;
       })
       .addCase(logout.fulfilled, (state) => {
         state.loading = false;
-        state.user = null;
+        state.accessToken = null;
         state.isAuthenticated = false;
       })
       .addCase(logout.rejected, (state) => {

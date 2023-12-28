@@ -6,6 +6,8 @@ import com.example.MelodySchool.models.request.LoginRequest;
 import com.example.MelodySchool.models.request.MailRequest;
 import com.example.MelodySchool.models.response.AuthResponse;
 import com.example.MelodySchool.models.response.MessageResponse;
+import com.example.MelodySchool.models.response.SimpleResponse;
+import com.example.MelodySchool.models.response.TokenRefreshResponse;
 import com.example.MelodySchool.repository.ConfirmationTokenRepository;
 import com.example.MelodySchool.repository.RefreshTokenRepository;
 import com.example.MelodySchool.repository.RoleRepository;
@@ -71,7 +73,7 @@ public class AuthService {
     @Value("${spring.mail.username}")
     private String userName;
 
-    public ResponseEntity<AuthResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
 
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
@@ -80,8 +82,17 @@ public class AuthService {
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         String jwt = jwtUtils.generateJwtToken(userDetails);
-        RefreshToken oldRefreshJwt = refreshTokenService.findTokenById(userDetails).get();
-        if(oldRefreshJwt == null){
+        if(refreshTokenRepository.findByUserId(userDetails.getId()).isPresent()){
+            refreshTokenService.deleteOldRefreshTokenByUserId(userDetails.getId());
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
+            cookie = new Cookie("refresh", refreshToken.getToken());
+            cookie.setMaxAge(7 * 24 * 60 * 60);
+            cookie.setHttpOnly(true);
+            cookie.setPath("/api/auth/refresh");
+            cookie.setSecure(true);
+            response.addCookie(cookie);
+        }
+        if(refreshTokenRepository.findByUserId(userDetails.getId()).isEmpty()){
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
             cookie = new Cookie("refresh", refreshToken.getToken());
             cookie.setMaxAge(7 * 24 * 60 * 60);
@@ -153,7 +164,7 @@ public class AuthService {
             String tokenForNewUser = userDetailsService.getVerifyEmailToken(user);
 
             String link = "http://localhost:8080/api/auth/confirm?token=" + tokenForNewUser;
-            emailService.sendEmail(createUserRequest.getEmail(), buildEmail(createUserRequest.getFirstName(), link));
+            emailService.sendEmail(createUserRequest.getEmail(), buildEmail(createUserRequest.getUsername(), link));
 
         } else {
             throw new IllegalStateException(String.format("Email %s, not valid", createUserRequest.getEmail()));
@@ -255,22 +266,24 @@ public class AuthService {
                 "\n" +
                 "</div></div>";
     }
-    public ResponseEntity<?> refreshToken(@RequestBody HttpServletRequest request){
+    public ResponseEntity<?> refreshToken(@RequestBody HttpServletRequest request, HttpServletResponse response){
+
         return refreshTokenService.findByToken(WebUtils.getCookie(request, "refresh").getValue())
-                .map(refreshTokenService::verifyExpiration)
-                .map(RefreshToken::getUser)
-                .map(user -> {
-                    String accessToken= jwtUtils.generateTokenFromUsername(user.getUsername());
-                    RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
-                    ResponseCookie cookie = ResponseCookie.from("refresh", refreshToken.getToken())
-                            .path("/api/auth/refresh")
-                            .httpOnly(true)
-                            .secure(true)
-                            .build();
-                    return ResponseEntity.ok()
-                            .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                            .body(accessToken);
-                }).orElseThrow(()->new RuntimeException("Refresh token is not in database!.." + WebUtils.getCookie(request, "refresh").getValue()));
+                   .map(refreshTokenService::verifyExpiration)
+                   .map(RefreshToken::getUser)
+                   .map(user -> {
+                       String accessToken= jwtUtils.generateTokenFromUsername(user.getUsername());
+                       refreshTokenService.deleteOldRefreshTokenByUserId(user.getId());
+                       RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
+                       cookie = new Cookie("refresh", refreshToken.getToken());
+                       cookie.setMaxAge(7 * 24 * 60 * 60);
+                       cookie.setHttpOnly(true);
+                       cookie.setPath("/api/auth/refresh");
+                       cookie.setSecure(true);
+                       response.addCookie(cookie);
+                       return ResponseEntity.ok()
+                               .body(new TokenRefreshResponse(accessToken));
+                   }).orElseThrow(()->new RuntimeException("Refresh token is not in database!.." + WebUtils.getCookie(request, "refresh").getValue()));
 
     }
 
@@ -279,6 +292,7 @@ public class AuthService {
         var currentPrincipal = new  SecurityContextHolder().getContext().getAuthentication().getPrincipal();
         if (currentPrincipal instanceof UserDetailsImpl userDetails){
             Long userid = userDetails.getId();
+            refreshTokenService.deleteOldRefreshTokenByUserId(userid);
         }
     }
 }

@@ -4,17 +4,20 @@ import Logo from "../../assets/logo.png";
 import {AiOutlineMenu, AiOutlineClose} from 'react-icons/ai'; 
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import verifyToken from "../auth/veerifyToken";
+import { logoutUserRed } from "../slices/authSlice";
 
 
 const Header = ()=> {
-  const {accessToken}  = useSelector((state) => state.auth);
+  const { accessToken, isLoading, isError, message, isAuthenticated } = useSelector(state => state.auth);
   const navigate = useNavigate();
   useEffect(() => {
-    if(accessToken=== null){
-        navigate("/")
-    }
+    
 })
-
+ 
+if(accessToken){
+  verifyToken(accessToken)
+}
 
   const[nav, setNav] = useState(false);
  

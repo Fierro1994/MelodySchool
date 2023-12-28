@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@CrossOrigin(value = "http://localhost:3000" , allowCredentials = "true")
+@CrossOrigin(value = "http://localhost:3000", allowCredentials = "true")
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
@@ -23,39 +23,37 @@ public class AuthController {
     private final AuthService authService;
 
 
-
-
-
     @PostMapping("/signin")
     public ResponseEntity<?> authResponseResponse(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         return ResponseEntity.ok(authService.authenticateUser(loginRequest, response));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<SimpleResponse> registerStudent(@RequestBody CreateUserRequest createUserRequest){
-       if(userRepository.existsByUsername(createUserRequest.getUsername())){
-           throw new AlreadyExistException("Пользователь с таким логином уже существует" + createUserRequest.getUsername() + createUserRequest.getRoles() + createUserRequest.getPassword() + createUserRequest.getEmail());
-       }
+    public ResponseEntity<SimpleResponse> registerStudent(@RequestBody CreateUserRequest createUserRequest) {
+        if (userRepository.existsByUsername(createUserRequest.getUsername())) {
+            throw new AlreadyExistException("Пользователь с таким логином уже существует" + createUserRequest.getUsername() + createUserRequest.getRoles() + createUserRequest.getPassword() + createUserRequest.getEmail());
+        }
 
-       if(userRepository.existsByEmail(createUserRequest.getEmail())){
-           throw new AlreadyExistException("Пользователь с таким e-mail уже существует!");
-       }
+        if (userRepository.existsByEmail(createUserRequest.getEmail())) {
+            throw new AlreadyExistException("Пользователь с таким e-mail уже существует!");
+        }
         authService.registerUser(createUserRequest);
 
         return ResponseEntity.ok(new SimpleResponse("register ok"));
     }
+
     @PostMapping("/refresh")
-    public ResponseEntity<?> refreshtoken(HttpServletRequest request) {
+    public ResponseEntity<?> refreshtoken(HttpServletRequest request, HttpServletResponse response) {
         try {
-            return ResponseEntity.ok(authService.refreshToken(request));
-        }
-        catch (Exception e){
-            return ResponseEntity.ok(new SimpleResponse(e+ "refresh error"));
+            return ResponseEntity.ok(authService.refreshToken(request, response));
+        } catch (Exception e) {
+            return ResponseEntity.ok(new SimpleResponse(e + "refresh error"));
         }
 
     }
-@PostMapping("/logout")
-    public void logout(){
+
+@GetMapping("/logout")
+public void logout() {
         authService.logout();
     }
 
