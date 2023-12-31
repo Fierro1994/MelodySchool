@@ -30,11 +30,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<SimpleResponse> registerStudent(@RequestBody CreateUserRequest createUserRequest) {
-        if (userRepository.existsByUsername(createUserRequest.getUsername())) {
-            throw new AlreadyExistException("Пользователь с таким логином уже существует" + createUserRequest.getUsername() + createUserRequest.getRoles() + createUserRequest.getPassword() + createUserRequest.getEmail());
-        }
-
-        if (userRepository.existsByEmail(createUserRequest.getEmail())) {
+             if (userRepository.existsByEmail(createUserRequest.getEmail())) {
             throw new AlreadyExistException("Пользователь с таким e-mail уже существует!");
         }
         authService.registerUser(createUserRequest);

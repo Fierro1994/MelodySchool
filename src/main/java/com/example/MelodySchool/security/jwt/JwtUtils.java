@@ -1,6 +1,10 @@
 package com.example.MelodySchool.security.jwt;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.example.MelodySchool.repository.RefreshTokenRepository;
 import com.example.MelodySchool.repository.UserRepository;
@@ -17,7 +21,7 @@ public class JwtUtils {
     private String jwtSecret;
 
     @Value("${jwt.lifetime}")
-    private int jwtExpirationMs;
+    private Long jwtExpirationMs;
 
     @Value("${jwtCookieName}")
     private String jwtRefreshCookie;
@@ -28,14 +32,28 @@ public class JwtUtils {
     RefreshTokenRepository refreshTokenRepository;
 
     public String generateJwtToken(UserDetailsImpl userDetails) {
-        return generateTokenFromUsername(userDetails.getUsername());
+        return generateTokenFromEmail(userDetails.getEmail(), userDetails);
     }
 
-    public String generateTokenFromUsername(String username) {
+    public String generateTokenFromEmail(String email, UserDetailsImpl userDetails) {
+
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(item -> item.getAuthority())
+                .collect(Collectors.toList());
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("id", userDetails.getId());
+        claims.put("firstName", userDetails.getFirstName());
+        claims.put("lastName", userDetails.getLastName());
+        claims.put("email", userDetails.getEmail());
+        claims.put("roles",roles);
+        claims.put("activateEmail", userDetails.getEnabled());
+
+
         return Jwts.builder()
-                .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
+                .addClaims(claims)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
 
@@ -60,7 +78,7 @@ public class JwtUtils {
         return false;
     }
 
-    public String getUserNameFromJwtToken(String jwt) {
+    public String getEmailFromJwtToken(String jwt) {
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(jwt).getBody().getSubject();
     }
 

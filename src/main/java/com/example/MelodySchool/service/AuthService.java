@@ -3,16 +3,15 @@ package com.example.MelodySchool.service;
 import com.example.MelodySchool.entity.*;
 import com.example.MelodySchool.models.request.CreateUserRequest;
 import com.example.MelodySchool.models.request.LoginRequest;
-import com.example.MelodySchool.models.request.MailRequest;
 import com.example.MelodySchool.models.response.AuthResponse;
 import com.example.MelodySchool.models.response.MessageResponse;
-import com.example.MelodySchool.models.response.SimpleResponse;
 import com.example.MelodySchool.models.response.TokenRefreshResponse;
 import com.example.MelodySchool.repository.ConfirmationTokenRepository;
 import com.example.MelodySchool.repository.RefreshTokenRepository;
 import com.example.MelodySchool.repository.RoleRepository;
 import com.example.MelodySchool.repository.UserRepository;
 import com.example.MelodySchool.security.jwt.JwtUtils;
+import com.example.MelodySchool.security.jwt.RefreshTokenService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,8 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.mail.MailMessage;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -36,10 +33,8 @@ import org.springframework.web.util.WebUtils;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -76,7 +71,7 @@ public class AuthService {
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
 
         Authentication authentication = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+                .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -85,46 +80,28 @@ public class AuthService {
         if(refreshTokenRepository.findByUserId(userDetails.getId()).isPresent()){
             refreshTokenService.deleteOldRefreshTokenByUserId(userDetails.getId());
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
-            cookie = new Cookie("refresh", refreshToken.getToken());
-            cookie.setMaxAge(7 * 24 * 60 * 60);
-            cookie.setHttpOnly(true);
-            cookie.setPath("/api/auth/refresh");
-            cookie.setSecure(true);
+            cookie = refreshTokenService.generateRefreshJwtCookie(refreshToken.getToken(), 50000);
             response.addCookie(cookie);
         }
         if(refreshTokenRepository.findByUserId(userDetails.getId()).isEmpty()){
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
-            cookie = new Cookie("refresh", refreshToken.getToken());
-            cookie.setMaxAge(7 * 24 * 60 * 60);
-            cookie.setHttpOnly(true);
-            cookie.setPath("/api/auth/refresh");
-            cookie.setSecure(true);
+            cookie = refreshTokenService.generateRefreshJwtCookie(refreshToken.getToken(), 50000);
             response.addCookie(cookie);
         }
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
-                .collect(Collectors.toList());
-
         return ResponseEntity.ok()
-                .body(new AuthResponse(jwt,
-                        userDetails.getId(),
-                        userDetails.getUsername(),
-                        userDetails.getEmail(),
-                        roles));
+                .body(new AuthResponse(jwt));
     }
 
     public ResponseEntity<?> registerUser(@Valid @RequestBody CreateUserRequest createUserRequest) {
-        if (userRepository.existsByUsername(createUserRequest.getUsername())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
-        }
-
-        if (userRepository.existsByEmail(createUserRequest.getEmail())) {
+              if (userRepository.existsByEmail(createUserRequest.getEmail())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
         }
 
-        User user = new User(createUserRequest.getUsername(),
+        User user = new User(
                 createUserRequest.getEmail(),
-                encoder.encode(createUserRequest.getPassword()));
+                encoder.encode(createUserRequest.getPassword()),
+                createUserRequest.getFirstName(),
+                createUserRequest.getLastName());
 
         Set<String> strRoles = createUserRequest.getRoles();
         Set<Role> roles = new HashSet<>();
@@ -164,7 +141,7 @@ public class AuthService {
             String tokenForNewUser = userDetailsService.getVerifyEmailToken(user);
 
             String link = "http://localhost:8080/api/auth/confirm?token=" + tokenForNewUser;
-            emailService.sendEmail(createUserRequest.getEmail(), buildEmail(createUserRequest.getUsername(), link));
+            emailService.sendEmail(createUserRequest.getEmail(), buildEmail(createUserRequest.getFirstName(), link));
 
         } else {
             throw new IllegalStateException(String.format("Email %s, not valid", createUserRequest.getEmail()));
@@ -272,14 +249,10 @@ public class AuthService {
                    .map(refreshTokenService::verifyExpiration)
                    .map(RefreshToken::getUser)
                    .map(user -> {
-                       String accessToken= jwtUtils.generateTokenFromUsername(user.getUsername());
+                       String accessToken= jwtUtils.generateTokenFromEmail(user.getEmail(),userDetailsService.loadUserByUsername(user.getEmail()));
                        refreshTokenService.deleteOldRefreshTokenByUserId(user.getId());
                        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
-                       cookie = new Cookie("refresh", refreshToken.getToken());
-                       cookie.setMaxAge(7 * 24 * 60 * 60);
-                       cookie.setHttpOnly(true);
-                       cookie.setPath("/api/auth/refresh");
-                       cookie.setSecure(true);
+                       cookie = refreshTokenService.generateRefreshJwtCookie(refreshToken.getToken(), 50000);
                        response.addCookie(cookie);
                        return ResponseEntity.ok()
                                .body(new TokenRefreshResponse(accessToken));

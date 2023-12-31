@@ -1,6 +1,6 @@
 import React from "react";
-import Navbar from "../components/Header/HeaderNoButton";
-import MainMenu from "../components/TeacherPage/MainMenu/MainMenu";
+import Navbar from "./Header/Header";
+import MainMenu from "./TeacherPage/MainMenu/MainMenu";
 
 const Teacher = () => {
     return (

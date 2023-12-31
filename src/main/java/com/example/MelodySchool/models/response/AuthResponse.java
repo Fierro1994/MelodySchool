@@ -12,9 +12,5 @@ import java.util.List;
 @Builder
 public class AuthResponse {
     private String accessToken;
-    private Long id;
-    private String username;
-    private String email;
-    private List<String> roles;
 }
 

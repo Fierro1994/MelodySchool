@@ -1,94 +1,52 @@
-import React from "react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {login, logoutUserRed, loginUserRed } from "../../slices/authSlice";
-import style from "./login.module.css";
-import { Link, Navigate } from "react-router-dom";
-import validator from 'validator';
+import { loginUser } from "../slices/authSlice";
+import { useNavigate } from "react-router-dom";
+import { StyledForm } from "./StyledForm";
+import { RoleIdent } from "../services/RoleIdentif";
 
-function Login() {
-  const { loading,  registered, isError, message, isSuccess } =
-    useSelector((state) => state.auth);
-  const [formData, setFormData] = useState({
-    username: "",
+
+const Login = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const auth = useSelector((state) => state.auth);
+  const [user, setUser] = useState({
+    email: "",
     password: "",
   });
-
-  const dispatch = useDispatch();
-
+  
   useEffect(() => {
-    if (registered) dispatch(logoutUserRed);
-  }, [isError, isSuccess, message]);
-
-  const { username, password } = formData;
-
-  const onChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const onSubmit = async (e) => {
-    e.preventDefault();
-
-    await dispatch(login({ username, password }));
-
-    if (isError) {
-      setFormData({
-        ...formData,
-        error: message,
-      });
+    if (auth._id) {
+      RoleIdent(auth);
     }
+  }, [auth._id, navigate]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(loginUser(user));
   };
-
- const escapeAndTrim = (str) => {
- str
-   .replace(/[<>&'"/]/g, '')
-   .replace(/\s{2,}/g, ' ')
-   .trim()
-}
-
 
   return (
     <>
-  <div className={style.form_signin}>
-    <form onSubmit={(e) => onSubmit(e)}>
-      <div>
+      <StyledForm onSubmit={handleSubmit}>
+        <h2>Login</h2>
         <input
-          type="text"
-          placeholder="Логин*"
-          name="username"
-          onChange={(e) => onChange(e)}
-          value={username}
-          required
+          type="email"
+          placeholder="email"
+          onChange={(e) => setUser({ ...user, email: e.target.value })}
         />
-        </div>
-        <div>
         <input
           type="password"
-          placeholder="Пароль*"
-          name="password"
-          onChange={(e) => onChange(e)}
-          value={password}
-          required
+          placeholder="password"
+          onChange={(e) => setUser({ ...user, password: e.target.value })}
         />
-        </div>
-      {/* error */}
-      {formData.error && <p className="text-danger">Ошибка доступа</p>}{" "}
-      {loading ? (
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">загрузка ...</span>
-        </div>
-      ) : (
-        <button className={style.btn} type="submit">
-          Войти
+        <button>
+          {auth.loginStatus === "pending" ? "Submitting..." : "Login"}
         </button>
-      )}
-    </form>
-    <div className={style.textBottom}>
-      Ещё нет аккаунта? <a href="/">зарегестрируйтесь</a>
-    </div>
-    
-  </div>
-  </>
+        {auth.loginStatus === "rejected" ? <p>{auth.loginError}</p> : null}
+      </StyledForm>
+    </>
   );
-}
+};
+
 export default Login;

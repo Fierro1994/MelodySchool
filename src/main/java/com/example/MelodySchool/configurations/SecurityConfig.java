@@ -29,7 +29,7 @@ import org.springframework.security.web.authentication.logout.HttpStatusReturnin
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final UserDetailsServiceImpl studentDetailsService;
+    private final UserDetailsServiceImpl userDetailsService;
     private final AuthEntryPointJwt authEntryPointJwt;
     private final JwtTokenFilter jwtTokenFilter;
 
@@ -40,7 +40,7 @@ public class SecurityConfig {
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(studentDetailsService);
+        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
 
         return daoAuthenticationProvider;

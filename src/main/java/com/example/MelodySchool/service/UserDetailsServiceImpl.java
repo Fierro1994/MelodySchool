@@ -25,14 +25,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     @Transactional
-    public UserDetailsImpl loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
+    public UserDetailsImpl loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email);
 
         return UserDetailsImpl.build(user);
     }
 
     public String getVerifyEmailToken(User user) {
-        boolean userExists = userRepository.findByEmail(user.getEmail()).isPresent();
+        boolean userExists = userRepository.existsByEmail(user.getEmail());
         String token = UUID.randomUUID().toString();
         saveConfirmationToken(user, token);
         return token;
