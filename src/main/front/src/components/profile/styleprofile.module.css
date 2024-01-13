@@ -1,0 +1,24 @@
+.tablemain{
+    box-sizing: unset;
+    font-size: 0.7vw;
+    color: rgb(255, 255, 255);
+    text-align: center;
+    border-radius: 2%;
+    border-collapse: unset;
+    width: 50%;
+}
+
+.tablemain th{
+    width: 10%;
+
+}
+.tablemain td{
+    width: 25vw
+}
+
+.tablemain td input {
+    border-radius: 0;
+    width: 20vw;
+    font-size: 0.7vw;
+    height: 2vw;
+}

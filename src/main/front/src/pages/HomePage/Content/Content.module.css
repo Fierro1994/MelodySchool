@@ -1,0 +1,45 @@
+.content{
+    height: 90vh;
+    width: 100%;
+    display: flex;
+    min-height: 80vh;
+    justify-content: center;
+    background: linear-gradient(rgba(2, 2, 2, 0.6),rgba(7, 7, 7, 0.6)),  url('../../../assets/169815923239.jpg')
+    no-repeat center/cover;
+    text-align: center;
+    column-gap: 10vh;
+}
+
+
+.content h1{
+    font-size: 7rem;
+    font-weight: bold;
+    color: rgb(179, 157, 184);
+}
+
+.content h2{
+    font-size: 5rem;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+
+.main_melody{
+    color: #fffbfb;
+    font-size: 8rem;
+}
+
+
+.profile_name a{
+text-decoration: none;
+font-size: 20px;
+color: #ffffff;
+}
+
+.menu_items{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
