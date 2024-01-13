@@ -1,6 +1,4 @@
-.form_signin{
-    margin-left: 10vh;
-}
+
 .form_signin input{
     padding: 1rem;
     margin: 1rem;
@@ -16,7 +14,25 @@
     transition: all .5s;
 
 }
+.form_signin input::placeholder{
+    color: #b6b3c0;
+    font-size: 15px;
+}
 
+.errorcontainer{
+    display: flex;
+    justify-content: center;
+}
+
+.form_signin input:focus{
+    
+    border-bottom: 2px solid #bd0808;
+}
+
+.error{
+    color: #ffffff;
+    font-size: 14px;
+}
 
 .btn{
     width: 25rem;
@@ -46,4 +62,26 @@
 .textBottom a{
     text-decoration: none;
     color: #ffffff;
+}
+
+.checkbox_register{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.checkbox_register input{
+    width: 5%;
+    color: #ffffff;
+}
+.checkbox_register label{
+    color: #ffffff;
+    font-size: 15px;
+}
+
+.role{
+    color: #ffffff;
+    font-size: 20px;
+}
+.hide{
+    display: none;
 }

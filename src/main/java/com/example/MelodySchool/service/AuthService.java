@@ -3,19 +3,17 @@ package com.example.MelodySchool.service;
 import com.example.MelodySchool.entity.*;
 import com.example.MelodySchool.models.request.CreateUserRequest;
 import com.example.MelodySchool.models.request.LoginRequest;
+import com.example.MelodySchool.models.request.LogoutRequest;
 import com.example.MelodySchool.models.response.AuthResponse;
 import com.example.MelodySchool.models.response.MessageResponse;
+import com.example.MelodySchool.models.response.SimpleResponse;
 import com.example.MelodySchool.models.response.TokenRefreshResponse;
-import com.example.MelodySchool.repository.ConfirmationTokenRepository;
-import com.example.MelodySchool.repository.RefreshTokenRepository;
-import com.example.MelodySchool.repository.RoleRepository;
-import com.example.MelodySchool.repository.UserRepository;
+import com.example.MelodySchool.repository.*;
 import com.example.MelodySchool.security.jwt.JwtUtils;
 import com.example.MelodySchool.security.jwt.RefreshTokenService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,11 +28,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.util.WebUtils;
 
-
+import javax.sql.rowset.serial.SerialBlob;
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -45,8 +43,6 @@ public class AuthService {
     UserRepository userRepository;
     @Autowired
     UserDetailsServiceImpl userDetailsService;
-    @Autowired
-    ConfirmationTokenRepository confirmationTokenRepository;
     @Autowired
     ConfirmationTokenService confirmationTokenService;
     @Autowired
@@ -64,14 +60,18 @@ public class AuthService {
     Cookie cookie;
     @Autowired
     EmailValidator emailValidator;
+    @Autowired
+    ItemsMenuService itemsMenuService;
+
 
     @Value("${spring.mail.username}")
     private String userName;
 
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<?> authenticateUser( @RequestBody LoginRequest loginRequest, HttpServletResponse response) throws SQLException {
 
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -92,12 +92,18 @@ public class AuthService {
                 .body(new AuthResponse(jwt));
     }
 
-    public ResponseEntity<?> registerUser(@Valid @RequestBody CreateUserRequest createUserRequest) {
+    public ResponseEntity<?> registerUser(@RequestBody CreateUserRequest createUserRequest) throws SQLException {
               if (userRepository.existsByEmail(createUserRequest.getEmail())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
         }
+        String partSeparator = ",";
+
+            String encodedImg = createUserRequest.getAvatar().split(partSeparator)[1];
+            byte[] result = Base64.getDecoder().decode(encodedImg);
+            Blob b = new SerialBlob(result);
 
         User user = new User(
+                b,
                 createUserRequest.getEmail(),
                 encoder.encode(createUserRequest.getPassword()),
                 createUserRequest.getFirstName(),
@@ -105,21 +111,25 @@ public class AuthService {
 
         Set<String> strRoles = createUserRequest.getRoles();
         Set<Role> roles = new HashSet<>();
+        List<ItemsMenu> itemsMenus = new ArrayList<>();
+
 
         if (strRoles == null) {
             Role userRole = roleRepository.findByName(ERole.ROLE_STUDENT)
                     .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            itemsMenus.addAll(itemsMenuService.setDefaultStudentItemsMenu());
             roles.add(userRole);
         } else {
             strRoles.forEach(role -> {
                 switch (role) {
-                    case "admin":
+                    case "ROLE_ADMIN":
                         Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(adminRole);
 
+
                         break;
-                    case "mod":
+                    case "ROLE_PARENTS":
                         Role modRole = roleRepository.findByName(ERole.ROLE_PARENTS)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(modRole);
@@ -128,12 +138,14 @@ public class AuthService {
                     default:
                         Role userRole = roleRepository.findByName(ERole.ROLE_STUDENT)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        itemsMenus.addAll(itemsMenuService.setDefaultStudentItemsMenu());
                         roles.add(userRole);
                 }
             });
         }
 
         user.setRoles(roles);
+        user.setItemsMenus(itemsMenus);
         userRepository.save(user);
 
         boolean isValidEmail = emailValidator.test(createUserRequest.getEmail());
@@ -168,104 +180,63 @@ public class AuthService {
         if (expiresAt.isBefore(LocalDateTime.now())) {
             throw new IllegalStateException("Token is already expired!");
         }
-
         confirmationTokenService.setConfirmedAt(token);
         userDetailsService.enableUser(confirmToken.get().getUser().getEmail());
 
-        return "Your email is confirmed. Thank you for using our service!";
+        return "<div style=\"display: flex; justify-content: center; height: 10vw;  width: 90vw; " +
+                "background-color: rgb(0, 3, 2);\">" +
+                "<div style=\" display: flex; justify-content: center; text-align: center; " +
+                "height: 50vw;  width: 90vw; background-color: rgb(253, 253, 253);\">" +
+                "<div>" +
+                "<p style=\"font-size: 20px; font-weight: 700;\">Email подтверждён, спасибо! </p>" +
+                "<p>Перейдите по ссылке, чтобы вернуться на сайт</p>" +
+                "<a href=\"localhost:3000/\"> Активировать аккаунт </a>  </div> </div>";
     }
 
     private String buildEmail(String name, String link) {
-        return "<div style=\"font-family:Helvetica,Arial,sans-serif;font-size:16px;margin:0;color:#0b0c0c\">\n" +
-                "\n" +
-                "<span style=\"display:none;font-size:1px;color:#fff;max-height:0\"></span>\n" +
-                "\n" +
-                "  <table role=\"presentation\" width=\"100%\" style=\"border-collapse:collapse;min-width:100%;width:100%!important\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n" +
-                "    <tbody><tr>\n" +
-                "      <td width=\"100%\" height=\"53\" bgcolor=\"#0b0c0c\">\n" +
-                "        \n" +
-                "        <table role=\"presentation\" width=\"100%\" style=\"border-collapse:collapse;max-width:580px\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" align=\"center\">\n" +
-                "          <tbody><tr>\n" +
-                "            <td width=\"70\" bgcolor=\"#0b0c0c\" valign=\"middle\">\n" +
-                "                <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse\">\n" +
-                "                  <tbody><tr>\n" +
-                "                    <td style=\"padding-left:10px\">\n" +
-                "                  \n" +
-                "                    </td>\n" +
-                "                    <td style=\"font-size:28px;line-height:1.315789474;Margin-top:4px;padding-left:10px\">\n" +
-                "                      <span style=\"font-family:Helvetica,Arial,sans-serif;font-weight:700;color:#ffffff;text-decoration:none;vertical-align:top;display:inline-block\">Confirm your email</span>\n" +
-                "                    </td>\n" +
-                "                  </tr>\n" +
-                "                </tbody></table>\n" +
-                "              </a>\n" +
-                "            </td>\n" +
-                "          </tr>\n" +
-                "        </tbody></table>\n" +
-                "        \n" +
-                "      </td>\n" +
-                "    </tr>\n" +
-                "  </tbody></table>\n" +
-                "  <table role=\"presentation\" class=\"m_-6186904992287805515content\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;max-width:580px;width:100%!important\" width=\"100%\">\n" +
-                "    <tbody><tr>\n" +
-                "      <td width=\"10\" height=\"10\" valign=\"middle\"></td>\n" +
-                "      <td>\n" +
-                "        \n" +
-                "                <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse\">\n" +
-                "                  <tbody><tr>\n" +
-                "                    <td bgcolor=\"#1D70B8\" width=\"100%\" height=\"10\"></td>\n" +
-                "                  </tr>\n" +
-                "                </tbody></table>\n" +
-                "        \n" +
-                "      </td>\n" +
-                "      <td width=\"10\" valign=\"middle\" height=\"10\"></td>\n" +
-                "    </tr>\n" +
-                "  </tbody></table>\n" +
-                "\n" +
-                "\n" +
-                "\n" +
-                "  <table role=\"presentation\" class=\"m_-6186904992287805515content\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;max-width:580px;width:100%!important\" width=\"100%\">\n" +
-                "    <tbody><tr>\n" +
-                "      <td height=\"30\"><br></td>\n" +
-                "    </tr>\n" +
-                "    <tr>\n" +
-                "      <td width=\"10\" valign=\"middle\"><br></td>\n" +
-                "      <td style=\"font-family:Helvetica,Arial,sans-serif;font-size:19px;line-height:1.315789474;max-width:560px\">\n" +
-                "        \n" +
-                "            <p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\">Hi " + name + ",</p><p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\"> Thank you for registering. Please click on the below link to activate your account: </p><blockquote style=\"Margin:0 0 20px 0;border-left:10px solid #b1b4b6;padding:15px 0 0.1px 15px;font-size:19px;line-height:25px\"><p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\"> <a href=\"" + link + "\">Activate Now</a> </p></blockquote>\n Link will expire in 15 minutes. <p>See you soon</p>" +
-                "        \n" +
-                "      </td>\n" +
-                "      <td width=\"10\" valign=\"middle\"><br></td>\n" +
-                "    </tr>\n" +
-                "    <tr>\n" +
-                "      <td height=\"30\"><br></td>\n" +
-                "    </tr>\n" +
-                "  </tbody></table><div class=\"yj6qo\"></div><div class=\"adL\">\n" +
-                "\n" +
-                "</div></div>";
+        return "<div style=\"display: flex; justify-content: center; height: 10vw;  width: 90vw; " +
+                "background-color: rgb(0, 3, 2);\">" +
+        "<div style=\" display: flex; justify-content: center; text-align: center; " +
+                "height: 50vw;  width: 90vw; background-color: rgb(253, 253, 253);\">" +
+            "<div>" +
+                "<p style=\"font-size: 20px; font-weight: 700;\">Спасибо, за регистрацию на сайте," +name +" </p>" +
+                "<p>Чтобы завершить регистрацию, и активировать аккаунт, перейдите пожалуйста по ссылке ниже!</p>" +
+                "<a href=\""+ link +  "\"> Активировать аккаунт </a>  </div> </div>";
     }
     public ResponseEntity<?> refreshToken(@RequestBody HttpServletRequest request, HttpServletResponse response){
 
-        return refreshTokenService.findByToken(WebUtils.getCookie(request, "refresh").getValue())
-                   .map(refreshTokenService::verifyExpiration)
-                   .map(RefreshToken::getUser)
-                   .map(user -> {
-                       String accessToken= jwtUtils.generateTokenFromEmail(user.getEmail(),userDetailsService.loadUserByUsername(user.getEmail()));
-                       refreshTokenService.deleteOldRefreshTokenByUserId(user.getId());
-                       RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
-                       cookie = refreshTokenService.generateRefreshJwtCookie(refreshToken.getToken(), 50000);
-                       response.addCookie(cookie);
-                       return ResponseEntity.ok()
-                               .body(new TokenRefreshResponse(accessToken));
-                   }).orElseThrow(()->new RuntimeException("Refresh token is not in database!.." + WebUtils.getCookie(request, "refresh").getValue()));
-
-    }
-
-    public void logout(){
-
-        var currentPrincipal = new  SecurityContextHolder().getContext().getAuthentication().getPrincipal();
-        if (currentPrincipal instanceof UserDetailsImpl userDetails){
-            Long userid = userDetails.getId();
-            refreshTokenService.deleteOldRefreshTokenByUserId(userid);
+        try {
+            refreshTokenService.findByToken(WebUtils.getCookie(request, "refresh").getValue())
+                    .map(refreshTokenService::verifyExpiration)
+                    .map(RefreshToken::getUser)
+                    .map(user -> {
+                        String accessToken= null;
+                        try {
+                            accessToken = jwtUtils.generateTokenFromEmail(user.getEmail(),userDetailsService.loadUserByUsername(user.getEmail()));
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
+                        refreshTokenService.deleteOldRefreshTokenByUserId(user.getId());
+                        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
+                        cookie = refreshTokenService.generateRefreshJwtCookie(refreshToken.getToken(), 50000);
+                        response.addCookie(cookie);
+                        return ResponseEntity.ok()
+                                .body(new TokenRefreshResponse(accessToken));
+                    }).orElseThrow(()->new RuntimeException("Refresh token is not in database!.." + WebUtils.getCookie(request, "refresh").getValue()));
+        }catch (Exception ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new SimpleResponse("Refresh token not found"));
         }
+
+        return ResponseEntity.ok().body(new SimpleResponse(""));
     }
+
+
+    public ResponseEntity<?> logout(LogoutRequest logoutRequest) {
+        
+        refreshTokenService.deleteOldRefreshTokenByUserId(logoutRequest.getUserId());
+
+        return ResponseEntity.ok(new SimpleResponse("logout sucessful"));
+
+    }
+
 }

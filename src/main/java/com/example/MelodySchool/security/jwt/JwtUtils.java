@@ -1,9 +1,8 @@
 package com.example.MelodySchool.security.jwt;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.Blob;
+import java.sql.SQLException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.example.MelodySchool.repository.RefreshTokenRepository;
@@ -13,6 +12,8 @@ import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import javax.sql.rowset.serial.SerialBlob;
 
 @Component
 public class JwtUtils {
@@ -31,15 +32,22 @@ public class JwtUtils {
     @Autowired
     RefreshTokenRepository refreshTokenRepository;
 
-    public String generateJwtToken(UserDetailsImpl userDetails) {
+    public String generateJwtToken(UserDetailsImpl userDetails) throws SQLException {
         return generateTokenFromEmail(userDetails.getEmail(), userDetails);
     }
 
-    public String generateTokenFromEmail(String email, UserDetailsImpl userDetails) {
+    public String generateTokenFromEmail(String email, UserDetailsImpl userDetails) throws SQLException {
 
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
+
+        Blob blob = userDetails.getAvatar();
+
+        int blobLength = (int) blob.length();
+        byte[] blobAsBytes = blob.getBytes(1, blobLength);
+
+
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", userDetails.getId());
@@ -48,6 +56,7 @@ public class JwtUtils {
         claims.put("email", userDetails.getEmail());
         claims.put("roles",roles);
         claims.put("activateEmail", userDetails.getEnabled());
+        claims.put("avatar", blobAsBytes);
 
 
         return Jwts.builder()

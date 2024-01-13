@@ -1,7 +1,10 @@
 package com.example.MelodySchool.entity;
 
 
+import java.sql.Blob;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,9 +25,17 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "avatar", columnDefinition = "LONGBLOB")
+    private Blob avatar;
+
     private String firstName;
+
     private String lastName;
+
     private String email;
+
     private String password;
 
     @ManyToMany(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
@@ -32,6 +43,9 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
+    @OneToMany
+    @JoinColumn(name = "user_id")
+    private List<ItemsMenu> itemsMenus = new ArrayList<>();
     private Boolean enabled;
 
 
@@ -40,10 +54,12 @@ public class User {
         this.password = password;
     }
 
-    public User(String email, String password, String firstName, String lastName) {
+    public User(Blob avatar, String email, String password, String firstName, String lastName) {
+        this.avatar = avatar;
         this.email = email;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
     }
+
 }

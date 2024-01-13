@@ -51,7 +51,7 @@ public class RefreshTokenService {
         Cookie cookie = new Cookie("refresh", refreshToken);
         cookie.setMaxAge(timeExp);
         cookie.setHttpOnly(true);
-        cookie.setPath("/api/auth/refresh");
+        cookie.setPath("/api/auth/**");
         cookie.setSecure(true);
         return cookie;
     }

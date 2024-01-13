@@ -3,6 +3,7 @@ package com.example.MelodySchool.controllers;
 import com.example.MelodySchool.exception.AlreadyExistException;
 import com.example.MelodySchool.models.request.CreateUserRequest;
 import com.example.MelodySchool.models.request.LoginRequest;
+import com.example.MelodySchool.models.request.LogoutRequest;
 import com.example.MelodySchool.models.response.SimpleResponse;
 import com.example.MelodySchool.repository.UserRepository;
 import com.example.MelodySchool.service.AuthService;
@@ -11,6 +12,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.sql.SQLException;
 
 
 @RestController
@@ -24,12 +27,12 @@ public class AuthController {
 
 
     @PostMapping("/signin")
-    public ResponseEntity<?> authResponseResponse(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<?> authResponseResponse(@RequestBody LoginRequest loginRequest, HttpServletResponse response) throws SQLException {
         return ResponseEntity.ok(authService.authenticateUser(loginRequest, response));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<SimpleResponse> registerStudent(@RequestBody CreateUserRequest createUserRequest) {
+    public ResponseEntity<SimpleResponse> registerStudent(@RequestBody CreateUserRequest createUserRequest) throws SQLException {
              if (userRepository.existsByEmail(createUserRequest.getEmail())) {
             throw new AlreadyExistException("Пользователь с таким e-mail уже существует!");
         }
@@ -48,9 +51,9 @@ public class AuthController {
 
     }
 
-@GetMapping("/logout")
-public void logout() {
-        authService.logout();
+@PostMapping("/logout")
+public ResponseEntity<?> logout(@RequestBody LogoutRequest logoutRequest) {
+        return  ResponseEntity.ok(authService.logout(logoutRequest));
     }
 
     @GetMapping(path = "/confirm")

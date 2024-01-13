@@ -1,6 +1,5 @@
 package com.example.MelodySchool.models.request;
 
-import com.example.MelodySchool.entity.ERole;
 import lombok.*;
 
 import java.util.Set;
@@ -9,6 +8,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class CreateUserRequest {
+    private String avatar;
     private String email;
     private String password;
     private String firstName;

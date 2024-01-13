@@ -1,32 +1,44 @@
 package com.example.MelodySchool.exception;
 
+import com.example.MelodySchool.models.response.SimpleResponse;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.web.ErrorResponse;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestControllerAdvice
 public class WebAppExceptionHandling {
 
     @ExceptionHandler(TokenRefreshException.class)
     public ResponseEntity<ErrorResponseBody> refreshTokenExceptionHandler (TokenRefreshException ex, WebRequest webRequest){
-        return buildResponse(HttpStatus.FORBIDDEN, ex, webRequest);
+        return buildResponse(HttpStatus.FORBIDDEN, ex, "Неактивный refresh токен");
     }
 
     @ExceptionHandler(AlreadyExistException.class)
     public ResponseEntity<ErrorResponseBody> allreadyExistException (AlreadyExistException ex, WebRequest webRequest){
-        return buildResponse(HttpStatus.BAD_REQUEST, ex, webRequest);
+        return buildResponse(HttpStatus.BAD_REQUEST, ex, "Ошибка");
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponseBody> entityNotFoundException (EntityNotFoundException ex, WebRequest webRequest){
-        return buildResponse(HttpStatus.NOT_FOUND, ex, webRequest);
+        return buildResponse(HttpStatus.NOT_FOUND, ex, "not found");
     }
 
-    private ResponseEntity<ErrorResponseBody> buildResponse(HttpStatus httpStatus, Exception ex, WebRequest webRequest) {
+    private ResponseEntity<ErrorResponseBody> buildResponse(HttpStatus httpStatus, Exception ex, String string) {
    return ResponseEntity.status(httpStatus)
-           .body(ErrorResponseBody.builder().message(ex.getMessage()).description(webRequest.getDescription(false)).build());
+           .body(ErrorResponseBody.builder().message(string).description(ex.getMessage()).build());
+    }
+    @ExceptionHandler(InternalAuthenticationServiceException.class)
+    public ResponseEntity<ErrorResponseBody>  internalAuthenticationServiceExceptionResponseEntity (InternalAuthenticationServiceException ex, WebRequest request){
+        return buildResponse(HttpStatus.NOT_FOUND, ex, "Пользователь не найден");
     }
 
 

@@ -1,10 +1,13 @@
 package com.example.MelodySchool.service;
 
+import java.sql.Blob;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.example.MelodySchool.entity.ItemsMenu;
 import com.example.MelodySchool.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,6 +18,7 @@ public class UserDetailsImpl implements UserDetails {
     private static final long serialVersionUID = 1L;
 
     private Long id;
+    private Blob avatar;
     private String firstName;
     private String lastName;
 
@@ -25,15 +29,18 @@ public class UserDetailsImpl implements UserDetails {
     private Boolean enabled;
 
     private Collection<? extends GrantedAuthority> authorities;
+    private List<ItemsMenu> itemsMenu;
 
-    public UserDetailsImpl(Long id,String email, String firstName,  String lastName,  String password,
-                           Collection<? extends GrantedAuthority> authorities, Boolean enabled) {
+    public UserDetailsImpl(Long id,Blob avatar,String email, String firstName,  String lastName,  String password,
+                           Collection<? extends GrantedAuthority> authorities, Boolean enabled, List<ItemsMenu> itemsMenu) {
         this.id = id;
+        this.avatar = avatar;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
         this.authorities = authorities;
+        this.itemsMenu = itemsMenu;
         this.enabled = enabled;
     }
 
@@ -41,15 +48,20 @@ public class UserDetailsImpl implements UserDetails {
         List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))
                 .collect(Collectors.toList());
+        List<ItemsMenu> itemsMenus = user.getItemsMenus().stream()
+                .toList();
 
         return new UserDetailsImpl(
                 user.getId(),
+                user.getAvatar(),
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getPassword(),
                 authorities,
-                user.getEnabled());
+                user.getEnabled(),
+                itemsMenus);
+
     }
 
     @Override
@@ -59,6 +71,9 @@ public class UserDetailsImpl implements UserDetails {
 
     public Long getId() {
         return id;
+    }
+    public List<ItemsMenu> getItemsMenu(){
+        return itemsMenu;
     }
 
     public String getEmail() {
@@ -85,6 +100,13 @@ public class UserDetailsImpl implements UserDetails {
 
     public Boolean getEnabled() {
         return enabled;
+    }
+
+    public void setAvatar(Blob avatar) {
+        this.avatar = avatar;
+    }
+    public Blob getAvatar() {
+        return avatar;
     }
 
     public void setEnabled(Boolean enabled) {
