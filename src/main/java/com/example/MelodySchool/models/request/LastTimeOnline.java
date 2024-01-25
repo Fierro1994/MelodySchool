@@ -5,14 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LoginRequest {
-    private String email;
-    private String password;
-    private Boolean rememberMe;
-
-
+public class LastTimeOnline {
+    private Long userId;
 }

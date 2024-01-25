@@ -24,11 +24,6 @@
     justify-content: center;
 }
 
-.form_signin input:focus{
-    
-    border-bottom: 2px solid #bd0808;
-}
-
 .error{
     color: #ffffff;
     font-size: 14px;

@@ -1,11 +1,13 @@
 import React from "react";
-import Header from "../Header/Header";
+import Header from "../../components/Header/Header";
 import Content from "./Content/Content";
-import Footer from "../Footer/Footer";
+import Footer from "../../components/Footer/Footer";
 import PromoAction from "./PromoAction/PromoAction";
 import { useSelector } from "react-redux";
 
 const Home = () => {
+
+
   const auth = useSelector((state) => state.auth);
     return (
     <div>

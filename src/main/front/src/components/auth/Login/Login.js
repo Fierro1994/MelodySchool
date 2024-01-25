@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../slices/authSlice";
 import { useNavigate } from "react-router-dom";
-import { RoleIdent } from "../services/RoleIdentif";
 import style from "./login.module.css";
+import stylecheck from "../../style_modules/checkbox.module.css";
 import { useForm } from "react-hook-form";
 
 
@@ -21,14 +21,6 @@ const Login = () => {
   } = useForm({
     mode: "onBlur"
   });
-
-  useEffect(() => {
-   
-    if (auth._id) {
-      RoleIdent(auth);
-    }
-  }, [auth._id, navigate]);
-
   
   const onSubmit = (data) => {
       dispatch(loginUser(data))
@@ -103,9 +95,15 @@ const Login = () => {
           }}
         />
       </div>
+
+      <div className={stylecheck.checkbox_container}>
+              <label> Запомнить меня</label>
+                <input {...register("checkbox")} className={stylecheck.check} type="checkbox" />
+            </div>
+    
       {errors && (<div className={style.errorcontainer} >
-          {(errors?.confirmPassword) && (
-            <p className={style.error}>{errors.confirmPassword.message}</p>
+          {(errors?.rememberme) && (
+            <p className={style.error}>{errors.rememberme.message}</p>
           )}</div>)}
       <div>
         <div>

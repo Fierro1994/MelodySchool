@@ -31,6 +31,8 @@ if(localStorage.getItem("access")){
 }
 }
 
+const now = new Date();
+
 const initialState = {
   token: localStorage.getItem("access"),
   firstName: user2.firstName,
@@ -46,7 +48,8 @@ const initialState = {
   loginError: "",
   userLoaded: false,
   listMenuItems: [],
-  isEnabled: false
+  isEnabled: false,
+  onlineTime: localStorage.getItem("lastTimeOnline")
 };
 
 
@@ -55,12 +58,13 @@ const initialState = {
 export const updateSelectedMenu = createAsyncThunk(
   "auth/updateSelectedMenu",
   async (data,{ rejectWithValue }) => {
+   
     try {
       await instanceWidthCred.post("/api/profile/settings/updatemenuelement", {
         userId: data.get("userId"),
         name: data.getAll("name")
       });
-     
+     localStorage.removeItem("menuModules")
     } catch (error) {
       console.log(error.response.data);
       return rejectWithValue(error.response.data);
@@ -72,6 +76,7 @@ export const getItemsMenu = createAsyncThunk(
   "auth/getItemsMenu",
   async (data,{ rejectWithValue }) => {
     const listItems = []
+    if(!localStorage.getItem("menuModules")){
     try {
       const response = await instanceWidthCred.post("/api/profile/settings/getmenuelement", {
         userId: data
@@ -86,6 +91,7 @@ export const getItemsMenu = createAsyncThunk(
       console.log(error.response.data);
       return rejectWithValue(error.response.data);
     }
+  }
   }
 );
 export const registerUser = createAsyncThunk(
@@ -110,11 +116,12 @@ export const registerUser = createAsyncThunk(
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
-  async ({email, password}, { rejectWithValue }) => {
+  async ({email, password, checkbox}, { rejectWithValue }) => {
     try {
       const token = await instanceWidthCred.post(`/api/auth/signin`, {
         email: email,
         password: password,
+        rememberMe: checkbox
       });
       localStorage.setItem("access", token.data.body.accessToken);
       return token.data;
@@ -123,6 +130,25 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
+
+export const getLastTimeOnline = createAsyncThunk(
+  "auth/getLastTimeOnline",
+  async ({_id}, { rejectWithValue }) => {
+    try {
+      const response = await instanceWidthCred.post(`/api/profile/settings/getlasttimeonline`, {
+        userId: initialState._id
+      });
+      var date = new Date(response.data.body.localDateTime)
+      var dateFormat = date.getHours() + ":" +  date.getMinutes()
+      localStorage.setItem("lastTimeOnline",  dateFormat);
+      return response.data.body.localDateTime;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+
 
 
 const authSlice = createSlice({
@@ -166,9 +192,11 @@ const authSlice = createSlice({
        
       } else return { ...state, userLoaded: true };
     },
+ 
     logoutUser(state, action) {
       authService.logout(state._id)
       localStorage.removeItem("access");
+      localStorage.removeItem("menuModules");
       return {
         ...state,
         token: "",
@@ -183,10 +211,12 @@ const authSlice = createSlice({
         registerError: "",
         loginStatus: "",
         loginError: "",
+  onlineTime: ""
       };
     },
   },
   extraReducers: (builder) => {
+   
     builder.addCase(registerUser.pending, (state, action) => {
       return { ...state, registerStatus: "pending",
       userLoaded: true };
@@ -263,6 +293,7 @@ const authSlice = createSlice({
       };
     });
   },
+  
 });
 
 

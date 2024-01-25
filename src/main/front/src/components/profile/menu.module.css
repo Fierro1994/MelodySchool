@@ -78,6 +78,30 @@
     box-shadow: -3px -3px 20px 3px rgb(223, 219, 219), 3px 3px 20px 3px rgb(88, 88, 170);
 
   }
+
+  .logout{
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 6vw;
+    height: 6vw;
+    text-decoration: none;
+    margin-left: -2.5vw;
+    margin-top: -2.5vw;
+    position: absolute;
+    text-align: center;
+    z-index: 100;
+    border: 1px solid rgb(107, 38, 38);
+    
+    border-radius: 50%;
+    transition: all 0.4s ease-out;
+  }
+
+  .logout:hover{
+    box-shadow: -3px -3px 20px 3px rgb(95, 30, 30), 3px 3px 20px 3px rgb(88, 88, 170);
+  }
+
   .item_menu_a{
     font-size: 1vw;
     text-decoration: none;
@@ -90,7 +114,21 @@
 
   .profilename {
     position: relative;
-    bottom: 4vh;
+    bottom: 2vh;
     color: #ffffff;
     font-size: 1vw;
   }
+
+  .logbtn{
+    text-decoration: none;
+    font-size: 1vw;
+    color: rgb(107, 38, 38);
+  }
+
+  .timeOnline{
+    bottom: 2vh;
+    font-size: 0.8vw;
+    position: relative;
+    color: #c4bebe;
+  }
+

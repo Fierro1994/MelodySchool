@@ -77,17 +77,20 @@ public class AuthService {
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         String jwt = jwtUtils.generateJwtToken(userDetails);
-        if(refreshTokenRepository.findByUserId(userDetails.getId()).isPresent()){
-            refreshTokenService.deleteOldRefreshTokenByUserId(userDetails.getId());
-            RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
-            cookie = refreshTokenService.generateRefreshJwtCookie(refreshToken.getToken(), 50000);
-            response.addCookie(cookie);
+        if(loginRequest.getRememberMe()){
+            if(refreshTokenRepository.findByUserId(userDetails.getId()).isPresent()){
+                refreshTokenService.deleteOldRefreshTokenByUserId(userDetails.getId());
+                RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
+                cookie = refreshTokenService.generateRefreshJwtCookie(refreshToken.getToken(), 50000);
+                response.addCookie(cookie);
+            }
+            if(refreshTokenRepository.findByUserId(userDetails.getId()).isEmpty()){
+                RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
+                cookie = refreshTokenService.generateRefreshJwtCookie(refreshToken.getToken(), 50000);
+                response.addCookie(cookie);
+            }
         }
-        if(refreshTokenRepository.findByUserId(userDetails.getId()).isEmpty()){
-            RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
-            cookie = refreshTokenService.generateRefreshJwtCookie(refreshToken.getToken(), 50000);
-            response.addCookie(cookie);
-        }
+
         return ResponseEntity.ok()
                 .body(new AuthResponse(jwt));
     }
@@ -232,9 +235,11 @@ public class AuthService {
 
 
     public ResponseEntity<?> logout(LogoutRequest logoutRequest) {
-        
-        refreshTokenService.deleteOldRefreshTokenByUserId(logoutRequest.getUserId());
 
+        if(refreshTokenRepository.findByUserId(logoutRequest.getUserId()).isPresent()) {
+            refreshTokenService.deleteOldRefreshTokenByUserId(logoutRequest.getUserId());
+            return ResponseEntity.ok(new SimpleResponse("logout sucessful"));
+        }
         return ResponseEntity.ok(new SimpleResponse("logout sucessful"));
 
     }

@@ -1,6 +1,6 @@
 import React from "react";
-import Header from "../Header/Header";
-import Footer from "../Footer/Footer";
+import Header from "../../components/Header/Header";
+import Footer from "../../components/Footer/Footer";
 import style from "../HomePage/Content/Content.module.css";
 import { useSelector } from "react-redux";
 import Register from "../../components/auth/registerModule/registerModule";

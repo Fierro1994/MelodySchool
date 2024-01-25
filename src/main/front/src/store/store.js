@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "../components/auth/slices/authSlice";
+import authReducer, { setOnlineTime } from "../components/auth/slices/authSlice";
 
 export const store = configureStore({
   reducer: {
@@ -8,7 +8,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ['auth/getItemsMenu/fulfilled'],
+        ignoredActions: ['auth/getItemsMenu/fulfilled',],
         ignoredActionPaths: ['meta.arg', 'payload.timestamp'],
         ignoredPaths: ['auth.listMenuItems'],
       },

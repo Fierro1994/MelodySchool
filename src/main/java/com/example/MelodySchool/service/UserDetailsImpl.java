@@ -1,6 +1,7 @@
 package com.example.MelodySchool.service;
 
 import java.sql.Blob;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -30,9 +31,10 @@ public class UserDetailsImpl implements UserDetails {
 
     private Collection<? extends GrantedAuthority> authorities;
     private List<ItemsMenu> itemsMenu;
+    private LocalDateTime lastTimeOnline;
 
     public UserDetailsImpl(Long id,Blob avatar,String email, String firstName,  String lastName,  String password,
-                           Collection<? extends GrantedAuthority> authorities, Boolean enabled, List<ItemsMenu> itemsMenu) {
+                           Collection<? extends GrantedAuthority> authorities, Boolean enabled, List<ItemsMenu> itemsMenu, LocalDateTime lastTimeOnline) {
         this.id = id;
         this.avatar = avatar;
         this.firstName = firstName;
@@ -42,6 +44,7 @@ public class UserDetailsImpl implements UserDetails {
         this.authorities = authorities;
         this.itemsMenu = itemsMenu;
         this.enabled = enabled;
+        this.lastTimeOnline = lastTimeOnline;
     }
 
     public static UserDetailsImpl build(User user) {
@@ -60,7 +63,8 @@ public class UserDetailsImpl implements UserDetails {
                 user.getPassword(),
                 authorities,
                 user.getEnabled(),
-                itemsMenus);
+                itemsMenus,
+                user.getLastTimeOnline());
 
     }
 
@@ -90,6 +94,13 @@ public class UserDetailsImpl implements UserDetails {
         return null;
     }
 
+    public LocalDateTime getLastTimeOnline() {
+        return lastTimeOnline;
+    }
+
+    public void setLastTimeOnline(LocalDateTime lastTimeOnline) {
+        this.lastTimeOnline = lastTimeOnline;
+    }
 
     public String getFirstName() {
         return firstName;

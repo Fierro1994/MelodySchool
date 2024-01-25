@@ -3,7 +3,7 @@ import React from "react";
 import Login from "../../../components/auth/Login/Login";
 import { useSelector } from "react-redux";
 import CircleMenuItems from "../../../components/profile/CircleMenuItems";
-import MyTable from "../../../components/profile/MyTable";
+import MyTable from "../../ProfilePage/MyTable";
 
 const Content = () => {
 

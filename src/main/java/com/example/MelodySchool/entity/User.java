@@ -2,6 +2,7 @@ package com.example.MelodySchool.entity;
 
 
 import java.sql.Blob;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -47,6 +48,7 @@ public class User {
     @JoinColumn(name = "user_id")
     private List<ItemsMenu> itemsMenus = new ArrayList<>();
     private Boolean enabled;
+    private LocalDateTime lastTimeOnline;
 
 
     public User(String email, String password) {
