@@ -48,6 +48,7 @@
   .open_menu:hover{
     box-shadow: -5px -5px 30px 5px rgb(223, 219, 219), 5px 5px 30px 5px rgb(88, 88, 170);
   }
+ 
   
 
 
@@ -79,6 +80,81 @@
 
   }
 
+
+ 
+
+
+  .moments {
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 6vw;
+    height: 6vw;
+    text-decoration: none;
+    margin-left: -2.5vw;
+    margin-top: -2.5vw;
+    position: absolute;
+    text-align: center;
+    z-index: 100;
+    border: 1px solid #eef;
+    border-radius: 50%;
+    transition: all 0.4s ease-out;
+  }
+  
+  .moments:hover{
+    box-shadow: -3px -3px 20px 3px rgb(223, 219, 219), 3px 3px 20px 3px rgb(88, 88, 170);
+  }
+
+  .moments.thisPage {
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 6vw;
+    height: 6vw;
+    text-decoration: none;
+    margin-left: -2.5vw;
+    margin-top: -2.5vw;
+    position: absolute;
+    text-align: center;
+    z-index: 100;
+    border: 1px solid rgb(79, 88, 138);
+    
+    border-radius: 50%;
+    transition: all 0.4s ease-out;
+  }
+  
+  .moments.thisPage:hover{
+    box-shadow: -3px -3px 20px 3px rgb(95, 113, 173), 3px 3px 20px 3px rgb(89, 89, 177);
+  }
+
+  .moments_add{
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 5vw;
+    height: 5vw;
+    text-decoration: none;
+    position: absolute;
+    text-align: center;
+    z-index: 100;
+    border: 1px solid #eef;
+    border-radius: 50%;
+    transition: all 0.4s ease-out;
+  }
+
+  .moments_add .item_menu_a{
+    color: #ffffff;
+  }
+
+  .moments_add:hover{
+    box-shadow: -3px -3px 20px 3px rgb(223, 219, 219), 3px 3px 20px 3px rgb(88, 88, 170);
+
+  }
+
+
   .logout{
     cursor: pointer;
     display: flex;
@@ -100,6 +176,33 @@
 
   .logout:hover{
     box-shadow: -3px -3px 20px 3px rgb(95, 30, 30), 3px 3px 20px 3px rgb(88, 88, 170);
+  }
+
+  .thisPage{
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 6vw;
+    height: 6vw;
+    text-decoration: none;
+    margin-left: -2.5vw;
+    margin-top: -2.5vw;
+    position: absolute;
+    text-align: center;
+    z-index: 100;
+    border: 1px solid rgb(79, 88, 138);
+    
+    border-radius: 50%;
+    transition: all 0.4s ease-out;
+  }
+
+  .thisPage:hover {
+    box-shadow: -3px -3px 20px 3px rgb(95, 113, 173), 3px 3px 20px 3px rgb(89, 89, 177);
+  }
+
+  .thisPage a{
+    color: rgb(104, 116, 184);
   }
 
   .item_menu_a{

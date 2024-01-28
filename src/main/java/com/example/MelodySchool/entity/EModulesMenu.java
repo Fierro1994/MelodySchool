@@ -1,18 +1,9 @@
 package com.example.MelodySchool.entity;
 
 public enum EModulesMenu {
-    JOURNAL_STUDENT,
-    JOURNAL_PARRENTS,
-    JOURNAL_TEACHER,
-    PLAN_PRIVATE,
-    PLAN_FOR_ALL,
-    PLAN_TEACHER,
-    PROFILE_INFO_STUDENT,
-    PROFILE_INFO_TEACHER,
-    PROFILE_INFO_PARRENTS,
-    PROFILE_INFO_DIRECTOR,
-    CONTACT_BOOK,
+    PROFILE_INFO,
     MESSAGES,
     FRIENDS,
+    MOMENTS,
 
 }

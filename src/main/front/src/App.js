@@ -9,6 +9,8 @@ import RequireAuth from "./components/auth/services/RequireAuth";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import verifyToken from "./components/auth/services/verifyToken";
 import authService from "./components/auth/services/authService";
+import MomentsPage from "./pages/MomentsPage/MomentsPage";
+import MomentsAddPage from "./pages/MomentsPage/MomentsAddPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -17,8 +19,11 @@ function App() {
   useEffect(() => {
     verifyToken(auth.token);
     dispatch(loadUser(null));
-    authService.setOnlineTime(auth._id)
-    dispatch(getLastTimeOnline(auth._id))
+    if (auth._id){
+      authService.setOnlineTime(auth._id)
+      dispatch(getLastTimeOnline(auth._id))
+    }
+   
   }, [dispatch]);
   return (
     <div className="App">
@@ -28,6 +33,8 @@ function App() {
             {auth._id && 
             <Route path="/" element={<RequireAuth><ProfilePage /></RequireAuth>}/> }
             <Route path="/" element={<Home />}/>
+            <Route path="/app/moments" element={<MomentsPage />}/>
+            <Route path="/app/moments/add" element={<MomentsAddPage />}/>
             <Route path="/app/register" element={<Register />} />
             <Route path="/app/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
             <Route path="/api/auth/confirm?token/:id" element={<RequireAuth><Home /></RequireAuth>} />

@@ -8,6 +8,7 @@
     no-repeat center/cover;
     text-align: center;
     column-gap: 10vh;
+    align-items: center;
 }
 
 

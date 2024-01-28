@@ -47,6 +47,9 @@ public class User {
     @OneToMany
     @JoinColumn(name = "user_id")
     private List<ItemsMenu> itemsMenus = new ArrayList<>();
+    @OneToMany
+    @JoinColumn(name = "user_id")
+    private List<Moments> stories = new ArrayList<>();
     private Boolean enabled;
     private LocalDateTime lastTimeOnline;
 

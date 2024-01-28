@@ -49,7 +49,7 @@ const initialState = {
   userLoaded: false,
   listMenuItems: [],
   isEnabled: false,
-  onlineTime: localStorage.getItem("lastTimeOnline")
+  onlineTime: localStorage.getItem("lastTimeOnline"),
 };
 
 

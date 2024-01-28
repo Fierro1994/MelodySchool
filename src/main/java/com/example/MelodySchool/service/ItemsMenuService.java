@@ -31,14 +31,10 @@ public class ItemsMenuService {
 
    public List<ItemsMenu>  setDefaultStudentItemsMenu(){
        List<ItemsMenu> itemsMenus = new ArrayList<>();
-       itemsMenus.add(new ItemsMenu(EModulesMenu.PROFILE_INFO_STUDENT,true, "Мой профиль"));
-       itemsMenus.add(new ItemsMenu(EModulesMenu.JOURNAL_STUDENT, true, "Журнал"));
-       itemsMenus.add(new ItemsMenu(EModulesMenu.PLAN_PRIVATE, true, "Расписание(личное)"));
-       itemsMenus.add(new ItemsMenu(EModulesMenu.PLAN_FOR_ALL, true, "Расписание(общее)"));
+       itemsMenus.add(new ItemsMenu(EModulesMenu.PROFILE_INFO,true, "Мой профиль"));
        itemsMenus.add(new ItemsMenu(EModulesMenu.MESSAGES, true, "Сообщения"));
        itemsMenus.add(new ItemsMenu(EModulesMenu.FRIENDS, true, "Друзья"));
-       itemsMenus.add(new ItemsMenu(EModulesMenu.CONTACT_BOOK, true, "Книга контактов"));
-
+       itemsMenus.add(new ItemsMenu(EModulesMenu.MOMENTS, true, "Моменты"));
        itemsMenuRepository.saveAll(itemsMenus);
        return itemsMenus;
     }
