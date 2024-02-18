@@ -1,5 +1,6 @@
-import { useSelector } from "react-redux";
+
 import { instance, instanceWidthCred } from "../api/api";
+
 
 
 
@@ -36,8 +37,13 @@ const logout = async (_id) => {
 } 
 
 
-const setOnlineTime = async (_id) => {
+
+
+const SetOnlineTime = async (_id) => {
+  
   try {
+   
+
     const response = await instanceWidthCred.post("/api/profile/settings/setlasttimeonline", {
       userId: _id
     });
@@ -48,6 +54,6 @@ const setOnlineTime = async (_id) => {
  
 } 
 
-const authService = { refresh , logout, setOnlineTime};
+const authService = { refresh , logout, SetOnlineTime};
 
 export default authService;

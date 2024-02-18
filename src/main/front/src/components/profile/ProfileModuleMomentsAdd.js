@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import styles from "../../components/profile/menu.module.css"
+import { useSelector } from "react-redux";
+import setupStyles from "../../pages/stylesModules/setupStyles";
 import { Link } from "react-router-dom";
 
 
 const ProfileModuleMomentsAdd = ()=> {
+  const style = setupStyles("mainstyle")
       return (     
-        <Link className={styles.item_menu_a} to={"/app/moments/add"}>Добавить</Link>
+        <Link className={style.item_menu_a} to={"/app/moments/add"}>Добавить</Link>
 
       );
     }

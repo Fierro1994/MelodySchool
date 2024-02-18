@@ -1,19 +1,13 @@
 import { useDispatch, useSelector } from "react-redux";
-import styleprofile from "./moments.module.css";
 import Moments from "./moments/Moments";
+import setupStyles from "../stylesModules/setupStyles";
 
 const MyTable =() => {
 const dispatch = useDispatch();
-  const auth = useSelector((state) => state.auth);
-  
-  const onSubmit = (data) => {
-     
-    }
-
-   
+  const style = setupStyles("mainstyle")
    return (
 
-<div className={styleprofile.tablemain}>
+<div className={style.tablemain}>
 
       <Moments/>
       

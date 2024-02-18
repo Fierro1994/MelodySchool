@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
-import stylemenu from "./menu.module.css";
+import setupStyles from "../../pages/stylesModules/setupStyles";
 import { useDispatch, useSelector } from 'react-redux';
-import { getItemsMenu, logoutUser } from '../auth/slices/authSlice';
+import { logoutUser } from '../auth/slices/authSlice';
 import ProfileModuleMoments from './ProfileModuleMoments';
 import ProfileInfo from './ProfileInfo';
 import ProfileAddModules from './ProfileAddModules';
@@ -10,23 +10,23 @@ import ProfileModuleFriends from './ProfileModuleFriends';
 import LogoutModule from "./LogoutModule";
 import ProfileModuleMomentsAdd from "./ProfileModuleMomentsAdd";
 import ProfileModuleMomentsArhiv from "./ProfileModuleMomentsArhiv";
+import MainModule from "./MainModule";
+import { useNavigate } from "react-router-dom";
 
 function CircleMenuItems(namePage, showSet) {
     const auth = useSelector((state) => state.auth);
+    const navigate = useNavigate()
   const srcValue = "data:image/png;base64, " + auth.avatar
-
+  const style = setupStyles("mainstyle")
   const [show, setShow] = useState(showSet)
 
   const dispatch = useDispatch();
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    navigate("/")
     dispatch(logoutUser());
   };
-
-  const onSubmitModule = () => {
-    dispatch(getItemsMenu(auth._id))
-  }
 
   const storiesOpen = () => {
   }
@@ -36,9 +36,9 @@ function CircleMenuItems(namePage, showSet) {
   if (localStorage.getItem("menuModules")) {
     listMenuModules = JSON.parse(localStorage.getItem("menuModules"))
   }
-
+  listModuleName.push(<MainModule />)
   listMenuModules.forEach(element => {
-
+  
     if (element.isEnabled && element.name === "MOMENTS") {
       listModuleName.push(<ProfileModuleMoments />)
     }
@@ -59,26 +59,25 @@ function CircleMenuItems(namePage, showSet) {
 
   const result = listModuleName.map((element, i) => {
     var l = listModuleName.length
-  
     if (element.type.name === "LogoutModule") {
-      return <span className={stylemenu.logout} onClick={handleSubmit} key={i} style={{
-        left: (50 - 100 * Math.cos(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%",
-        top: (50 + 100 * Math.sin(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%"
+      return <span className={style.logout} onClick={handleSubmit} key={i} style={{
+        left: (50 - 90 * Math.cos(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%",
+        top: (50 + 90 * Math.sin(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%"
       }}>{element}</span>
     }
     if (element.type.name === "ProfileModuleMoments"){
       if(element.type.name === namePage){
-        return <span className={stylemenu.moments + " " + stylemenu.thisPage} onClick={storiesOpen} key={i} style={{
-          left: (50 - 100 * Math.cos(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%",
-          top: (50 + 100 * Math.sin(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%"
+        return <span className={style.moments + " " + style.thisPage} onClick={storiesOpen} key={i} style={{
+          left: (50 - 90 * Math.cos(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%",
+          top: (50 + 90 * Math.sin(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%"
         }}>{element}
-         <span className={stylemenu.moments_add} style={{
+         <span className={style.moments_add} style={{
           marginLeft: "-11.3vw",
           marginTop: "11.5vw"
           }}>
           <ProfileModuleMomentsArhiv/>
         </span>
-        <span className={stylemenu.moments_add} style={{
+        <span className={style.moments_add} style={{
           marginLeft: "11.5vw",
           marginTop: "11.5vw"
           }}>
@@ -86,52 +85,54 @@ function CircleMenuItems(namePage, showSet) {
         </span>
         </span>
       }
-      return <span className={stylemenu.moments} onClick={storiesOpen} key={i} style={{
-        left: (50 - 100 * Math.cos(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%",
-        top: (50 + 100 * Math.sin(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%"
+      return <span className={style.moments} onClick={storiesOpen} key={i} style={{
+        left: (50 - 90 * Math.cos(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%",
+        top: (50 + 90 * Math.sin(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%"
       }}>{element}</span>
     } 
     if (element.type.name === namePage) {
-      return <span className={stylemenu.thisPage} key={i} style={{
-        left: (50 - 100 * Math.cos(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%",
-        top: (50 + 100 * Math.sin(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%"
+      return <span className={style.thisPage} key={i} style={{
+        left: (50 - 90 * Math.cos(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%",
+        top: (50 + 90 * Math.sin(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%"
       }}>{element}</span>
     }
 
-    return <span className={stylemenu.span_menu} key={i} style={{
-      left: (50 - 100 * Math.cos(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%",
-      top: (50 + 100 * Math.sin(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%"
+    return <span className={style.span_menu} key={i} style={{
+      left: (50 - 90 * Math.cos(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%",
+      top: (50 + 90 * Math.sin(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%"
     }}>{element}</span>
 
   });
 
 
   return (
-    <div>
+    <>
 
-      <div className={stylemenu.items}>
-        <div className={!show ? stylemenu.item : stylemenu.item + " " + stylemenu.open}>
-          <div className={stylemenu.item_style}>{result}</div>
+      <div className={style.containermenu}>
+      <div className={!show ? style.item : style.item + " " + style.open}>
+          <div className={style.item_style}>{result}</div>
         </div>
 
-        <div>
+       
 
-          <img className={stylemenu.open_menu} src={srcValue} onClick={function () {
-            onSubmitModule()
+          <img className={style.open_menu} src={srcValue} onClick={function () {
+            // onSubmitModule()
             setShow(!show)
           }
           } />
-        </div>
-        <div className={stylemenu.timeOnline}>{
+
+      </div>
+       
+      
+        <div className={style.timeOnline}>{
           auth._id ? "в сети" :
             "Был в сети" + " " + auth.onlineTime}</div>
-        <div className={stylemenu.profilename}>
+        <div className={style.profilename}>
           <p>{auth.firstName + " " + auth.lastName}</p>
-          <p>{auth.roles}</p>
         </div>
-      </div>
+    
 
-    </div>
+    </>
 
   )
 }

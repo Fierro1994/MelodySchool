@@ -8,6 +8,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.example.MelodySchool.entity.ETheme;
+import com.example.MelodySchool.entity.ImagePromo;
 import com.example.MelodySchool.entity.ItemsMenu;
 import com.example.MelodySchool.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -28,13 +30,14 @@ public class UserDetailsImpl implements UserDetails {
     @JsonIgnore
     private String password;
     private Boolean enabled;
-
+    private ETheme theme;
     private Collection<? extends GrantedAuthority> authorities;
     private List<ItemsMenu> itemsMenu;
     private LocalDateTime lastTimeOnline;
+    private List<ImagePromo> imagePromos;
 
     public UserDetailsImpl(Long id,Blob avatar,String email, String firstName,  String lastName,  String password,
-                           Collection<? extends GrantedAuthority> authorities, Boolean enabled, List<ItemsMenu> itemsMenu, LocalDateTime lastTimeOnline) {
+                           Collection<? extends GrantedAuthority> authorities, Boolean enabled, List<ItemsMenu> itemsMenu, LocalDateTime lastTimeOnline, ETheme theme, List<ImagePromo> imagePromos) {
         this.id = id;
         this.avatar = avatar;
         this.firstName = firstName;
@@ -45,6 +48,8 @@ public class UserDetailsImpl implements UserDetails {
         this.itemsMenu = itemsMenu;
         this.enabled = enabled;
         this.lastTimeOnline = lastTimeOnline;
+        this.theme = theme;
+        this.imagePromos = imagePromos;
     }
 
     public static UserDetailsImpl build(User user) {
@@ -64,13 +69,25 @@ public class UserDetailsImpl implements UserDetails {
                 authorities,
                 user.getEnabled(),
                 itemsMenus,
-                user.getLastTimeOnline());
+                user.getLastTimeOnline(),
+                user.getThemes(),
+                user.getImagePromos()
+
+        );
 
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
+    }
+
+    public ETheme getTheme() {
+        return theme;
+    }
+
+    public void setTheme(ETheme theme) {
+        this.theme = theme;
     }
 
     public Long getId() {
@@ -100,6 +117,14 @@ public class UserDetailsImpl implements UserDetails {
 
     public void setLastTimeOnline(LocalDateTime lastTimeOnline) {
         this.lastTimeOnline = lastTimeOnline;
+    }
+
+    public List<ImagePromo> getImagePromos() {
+        return imagePromos;
+    }
+
+    public void setImagePromos(List<ImagePromo> imagePromos) {
+        this.imagePromos = imagePromos;
     }
 
     public String getFirstName() {

@@ -29,7 +29,7 @@ public class ItemsMenuService {
     @Autowired
     UserRepository userRepository;
 
-   public List<ItemsMenu>  setDefaultStudentItemsMenu(){
+   public List<ItemsMenu>  setDefaultUserItemsMenu(){
        List<ItemsMenu> itemsMenus = new ArrayList<>();
        itemsMenus.add(new ItemsMenu(EModulesMenu.PROFILE_INFO,true, "Мой профиль"));
        itemsMenus.add(new ItemsMenu(EModulesMenu.MESSAGES, true, "Сообщения"));
@@ -48,21 +48,31 @@ public class ItemsMenuService {
     public ResponseEntity<?> updateItemsMenu(@RequestBody MenuSettingsAddReq request){
         User user = userRepository.findById(request.getUserId()).get();
 
-        if(user.getEnabled()){
+
             List<ItemsMenu> itemsMenus = user.getItemsMenus();
 
-            itemsMenus.forEach((itemsMenu -> {
-                itemsMenu.setIsEnabled(false);
-                Arrays.stream(request.getName()).toList().forEach(elementName -> {
-                    if (elementName.equals(itemsMenu.getName().name())) {
-                        itemsMenu.setIsEnabled(true);
-                    }
-                });
-            }));
+            if (Arrays.stream(request.getName()).toList().isEmpty()) {
+                itemsMenus.forEach((itemsMenu -> {
+                    itemsMenu.setIsEnabled(false);
+                }));
+            }
+            else {
+                itemsMenus.forEach((itemsMenu -> {
+                    itemsMenu.setIsEnabled(false);
+                    Arrays.stream(request.getName()).toList().forEach(elementName -> {
+                        if (elementName.equals(itemsMenu.getName().name())) {
+                            itemsMenu.setIsEnabled(true);
+                        }
+
+                    });
+                }));
+            }
+
+
             user.setItemsMenus(itemsMenus);
             userRepository.save(user);
             return ResponseEntity.ok().body(new MenuSettingsResponse(user.getItemsMenus().stream().toList()));
-        }
-       else return  ResponseEntity.ok(new SimpleResponse("Account_is_not_confirmed"));
+
+
     }
 }

@@ -1,14 +1,15 @@
 import React, { useState } from "react";
-import styles from "./menu.module.css"
+import { useSelector } from "react-redux";
+import setupStyles from "../../pages/stylesModules/setupStyles";
 
 
 const ProfileModuleMessages = ()=> {
-
+  const style = setupStyles("mainstyle")
 
 
       return (
               
-                     <a className={styles.item_menu_a}>Сообщения</a>
+                     <a className={style.item_menu_a}>Сообщения</a>
 
       );
     }

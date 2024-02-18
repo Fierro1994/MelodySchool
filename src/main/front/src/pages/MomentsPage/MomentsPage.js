@@ -1,20 +1,20 @@
 import React from "react";
-import styles from "./moments.module.css"
-import  stylemenu from "../HomePage/Content/Content.module.css";
 import CircleMenuItems from "../../components/profile/CircleMenuItems";
 import MyTable from "./MyTable";
+import { useSelector } from "react-redux";
+import setupStyles from "../stylesModules/setupStyles";
 
 
 const MomentsPage = () => {
-
+  const style = setupStyles("mainstyle")
    const moduleMenu = CircleMenuItems("ProfileModuleMoments", true)
     return (
     <div>
-         <div className={styles.container}>
+         <div className={style.container}>
         
-         <div className={styles.container2}>
-         <div className={stylemenu.menu_items}>
-       <div className={styles.circle}>
+         <div className={style.container2}>
+         <div className={style.menu_items}>
+       <div className={style.circle}>
        {moduleMenu}
          </div>
        </div>

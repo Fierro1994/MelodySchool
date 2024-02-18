@@ -59,7 +59,9 @@ public class SecurityConfig {
                 .exceptionHandling(configurer -> configurer.authenticationEntryPoint(authEntryPointJwt))
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((auth) ->
-                    auth.requestMatchers("/static/**","/*","/app/login/**", "/api/auth/register/**", "/api/auth/signin/**", "/api/auth/confirm", "/api/auth/refresh", "/api/auth/logout", "/api/profile/settings/getmenuelement","/api/profile/settings/updatemenuelement", "/api/profile/settings/setlasttimeonline", "/api/profile/settings/getlasttimeonline" ).permitAll()
+                    auth.requestMatchers("/static/**","/*","/app/login/**", "/api/auth/register/**", "/api/auth/signin/**", "/api/auth/confirm", "/api/auth/refresh", "/api/auth/logout", "/api/profile/settings/getmenuelement","/api/profile/settings/updatemenuelement", "/api/profile/settings/setlasttimeonline", "/api/profile/settings/getlasttimeonline",
+                                    "/api/settings/interface/**", "/api/mainpage/settings/**", "/assets/**", "/src/assets/**", "/imagepromo/**"
+                            ).permitAll()
                             .requestMatchers("/app/teacher").hasRole("TEACHER")
                             .requestMatchers("/app/student").hasRole("STUDENT")
                             .anyRequest().authenticated()

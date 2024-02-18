@@ -49,10 +49,18 @@ public class User {
     private List<ItemsMenu> itemsMenus = new ArrayList<>();
     @OneToMany
     @JoinColumn(name = "user_id")
+    private List<MainPageModule> mainPageModules = new ArrayList<>();
+    @OneToMany
+    @JoinColumn(name = "user_id")
+    private List<ImagePromo> imagePromos = new ArrayList<>();
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private ETheme themes;
+    @OneToMany
+    @JoinColumn(name = "user_id")
     private List<Moments> stories = new ArrayList<>();
     private Boolean enabled;
     private LocalDateTime lastTimeOnline;
-
 
     public User(String email, String password) {
         this.email = email;

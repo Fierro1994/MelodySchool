@@ -1,4 +1,7 @@
-
+.form_signin{
+    display: flex;
+    justify-content: center;
+}
 .form_signin input{
     padding: 1rem;
     margin: 1rem;
@@ -50,6 +53,29 @@
     background-color: rgb(255, 255, 255);
     color:rgb(0, 0, 0);
 }
+
+.btn_link{
+   
+    text-decoration: none;
+   
+  
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    text-align: center;
+    cursor: pointer;
+    color: #ffffff;
+    font-size: 2rem;
+
+}
+
+.btn_link:hover{
+    -webkit-transition-duration: 1s; /* Safari */
+    transition-duration: 1s;
+    transition: all 2ms;
+    color:rgb(78, 78, 78);
+}
+
+
 .textBottom{
     padding-top: 10px;
     font-size: 12px;
@@ -79,4 +105,8 @@
 }
 .hide{
     display: none;
+}
+
+p{
+    color: #ffffff;
 }

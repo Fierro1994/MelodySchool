@@ -1,26 +1,25 @@
-import React from "react";
-import styles from "./moments.module.css"
-import  stylemenu from "../HomePage/Content/Content.module.css";
-import CircleMenuItems from "../../components/profile/CircleMenuItems";
-import MyTable from "./MyTable";
+import React, { useEffect, useState } from "react";
+
 import MomentsAddFunc from "./moments/MomentsAddFunc";
+import setupStyles from "../stylesModules/setupStyles";
 
 
 const MomentsAddPage = () => {
-
-   const moduleMenu = CircleMenuItems("ProfileModuleMoments", true)
+const style = setupStyles("mainstyle")
+   
+  
+   const videoRecord = MomentsAddFunc();
     return (
     <div>
-         <div className={styles.container}>
+         <div className={style.container}>
         
-         <div className={styles.container2}>
-         <div className={stylemenu.menu_items}>
-       <div className={styles.circle}>
-       {moduleMenu}
+         <div className={style.container2}>
+         <div className={style.menu_items}>
+       <div className={style.circle}>
          </div>
        </div>
        <div>
-     <MomentsAddFunc/>
+       {videoRecord}
        </div>
    
          </div>

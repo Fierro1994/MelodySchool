@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../slices/authSlice";
-import { useNavigate } from "react-router-dom";
+import { getItemsMenu, loginUser } from "../slices/authSlice";
+import { Link, useNavigate } from "react-router-dom";
 import style from "./login.module.css";
 import stylecheck from "../../style_modules/checkbox.module.css";
 import { useForm } from "react-hook-form";
@@ -108,11 +108,15 @@ const Login = () => {
       <div>
         <div>
           <button className={style.btn} >Войти</button>
+          
         </div>
+      
         <div>  {auth? <p className={style.error}>{}</p> : <></>}</div>
       
       </div>
+        <Link  className={style.btn_link} to={"/app/register/"}>Регистрация</Link>
       </div>
+     
     </form>
 
   );

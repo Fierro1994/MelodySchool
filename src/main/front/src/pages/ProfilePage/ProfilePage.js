@@ -1,20 +1,18 @@
-import React from "react";
-import styles from "./profile.module.css"
-import  stylemenu from "../HomePage/Content/Content.module.css";
+import React, { useState } from "react";
 import MyTable from "./MyTable";
 import CircleMenuItems from "../../components/profile/CircleMenuItems";
+import { useSelector } from "react-redux";
+import setupStyles from "../stylesModules/setupStyles";
 
 
 const ProfilePage = () => {
- 
-   const moduleMenu = CircleMenuItems("ProfileInfo", true)
+  const moduleMenu = CircleMenuItems("ProfileInfo", true)
+  const style = setupStyles("mainstyle")
     return (
     <div>
-         <div className={styles.container}>
-        
-         <div className={styles.container2}>
-         <div className={stylemenu.menu_items}>
-       <div className={styles.circle}>
+         <div className={style.container}>
+         <div className={style.menu_items}>
+       <div className={style.circle}>
        {moduleMenu}
          </div>
        </div>
@@ -22,7 +20,7 @@ const ProfilePage = () => {
        <MyTable/>
        </div>
      
-         </div>
+     
         
         </div>
        

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {jwtDecode} from "jwt-decode";
-import { instance, instanceWidthCred } from "../api/api";
+import { instanceWidthCred } from "../api/api";
 import authService from "../services/authService";
 
 
@@ -9,32 +9,14 @@ let user2 = "";
 
 if(localStorage.getItem("access")){
   const token = localStorage.getItem("access")
-  
  user2 = jwtDecode(token);
- switch (user2.roles[0]) {
-  case "ROLE_STUDENT":
-      user2.roles = "Ученик"
-    break;
-  case "ROLE_PARENTS":
-      user2.roles = "Родитель"
-    break;
-  case "ROLE_TEACHER":
-      user2.roles = "Преподаватель"
-    break;
-  case "ROLE_DIRECTOR":
-      user2.roles = "Директор"
-    break;
-  case "ROLE_ADMIN":
-      user2.roles = "Администратор"
-    break;
-    
-}
 }
 
 const now = new Date();
 
 const initialState = {
   token: localStorage.getItem("access"),
+  theme: localStorage.getItem("theme"),
   firstName: user2.firstName,
   lastName: user2.lastName,
   email: user2.email,
@@ -48,23 +30,22 @@ const initialState = {
   loginError: "",
   userLoaded: false,
   listMenuItems: [],
+  listMainPageModule:[],
   isEnabled: false,
   onlineTime: localStorage.getItem("lastTimeOnline"),
 };
 
 
-
-
-export const updateSelectedMenu = createAsyncThunk(
-  "auth/updateSelectedMenu",
+export const updateMainPageModule = createAsyncThunk(
+  "auth/updateMainPageModule",
   async (data,{ rejectWithValue }) => {
    
     try {
-      await instanceWidthCred.post("/api/profile/settings/updatemenuelement", {
+      await instanceWidthCred.post("/api/mainpage/settings/updatemodule", {
         userId: data.get("userId"),
         name: data.getAll("name")
       });
-     localStorage.removeItem("menuModules")
+     localStorage.removeItem("mainPageModules")
     } catch (error) {
       console.log(error.response.data);
       return rejectWithValue(error.response.data);
@@ -72,20 +53,20 @@ export const updateSelectedMenu = createAsyncThunk(
   }
 );
 
-export const getItemsMenu = createAsyncThunk(
-  "auth/getItemsMenu",
+export const getMainPageModules = createAsyncThunk(
+  "auth/getMainPageModules",
   async (data,{ rejectWithValue }) => {
-    const listItems = []
-    if(!localStorage.getItem("menuModules")){
+    const listmodules = []
+    if(!localStorage.getItem("mainPageModules")){
     try {
-      const response = await instanceWidthCred.post("/api/profile/settings/getmenuelement", {
+      const response = await instanceWidthCred.post("/api/mainpage/settings/getmodule", {
         userId: data
       });
       (response.data.body.menu).forEach( (item) =>{
-          listItems.push({id: item.id, name:item.name,isEnabled: item.isEnabled, nametwo:item.nametwo})     
+        listmodules.push({id: item.id, name:item.name,isEnabled: item.isEnabled, nametwo:item.nametwo, pathImage: item.pathImage})     
        })
-       localStorage.setItem("menuModules", JSON.stringify(listItems))
-      return listItems;
+       localStorage.setItem("mainPageModules", JSON.stringify(listmodules))
+      return listmodules;
      
     } catch (error) {
       console.log(error.response.data);
@@ -94,6 +75,47 @@ export const getItemsMenu = createAsyncThunk(
   }
   }
 );
+
+export const updateSelectedMenu = createAsyncThunk(
+  "auth/updateSelectedMenu",
+  async (data,{ rejectWithValue }) => {
+   
+    try {
+      const response = await instanceWidthCred.post("/api/profile/settings/updatemenuelement", {
+        userId: data.get("userId"),
+        name: data.getAll("name")
+      });
+     
+      const listItems = []
+      response.data.body.menu.forEach( (item) =>{
+        listItems.push({id: item.id, name:item.name,isEnabled: item.isEnabled, nametwo:item.nametwo})     
+     })
+     localStorage.setItem("menuModules", JSON.stringify(listItems))
+    return listItems;
+    } catch (error) {
+      console.log(error.response.data);
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const setSelectedTheme = createAsyncThunk(
+  "auth/setSelectedTheme",
+  async (data,{ rejectWithValue }) => {
+    try {
+      const response = await instanceWidthCred.post("/api/settings/interface/selecttheme", {
+        userId: data.get("userId"),
+        name: data.get("name")
+      });
+      localStorage.setItem("theme",response.data.body.name)
+   return response.data.body.name
+    } catch (error) {
+      console.log(error.response.data);
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async (data,{ rejectWithValue }) => {
@@ -123,7 +145,13 @@ export const loginUser = createAsyncThunk(
         password: password,
         rememberMe: checkbox
       });
+      const listItems = []
+      token.data.body.itemsMenus.forEach( (item) =>{
+        listItems.push({id: item.id, name:item.name,isEnabled: item.isEnabled, nametwo:item.nametwo})     
+     })
+      localStorage.setItem("menuModules", JSON.stringify(listItems))
       localStorage.setItem("access", token.data.body.accessToken);
+      localStorage.setItem("theme",token.data.body.theme)
       return token.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -159,35 +187,17 @@ const authSlice = createSlice({
       const token = state.token;
       if (token) {
         const user = jwtDecode(token);
-        switch (user.roles[0]) {
-          case "ROLE_STUDENT":
-              user.roles = "Ученик"
-            break;
-          case "ROLE_PARENTS":
-              user.roles = "Родитель"
-            break;
-          case "ROLE_TEACHER":
-              user.roles = "Преподаватель"
-            break;
-          case "ROLE_DIRECTOR":
-              user.roles = "Директор"
-            break;
-          case "ROLE_ADMIN":
-              user.roles = "Администратор"
-            break;
-            
-        }
-        
+        localStorage.getItem("theme")
         return {
           ...state,
           token,
+          theme:user.theme,
           avatar: user.avatar,
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
           _id: user.id,
           isEnabled: user.activateEmail,
-          roles: user.roles,
         };
        
       } else return { ...state, userLoaded: true };
@@ -195,8 +205,11 @@ const authSlice = createSlice({
  
     logoutUser(state, action) {
       authService.logout(state._id)
-      localStorage.removeItem("access");
       localStorage.removeItem("menuModules");
+      localStorage.removeItem("access");
+      localStorage.removeItem("lastTimeOnline")
+      localStorage.removeItem("mainPageModules");
+      localStorage.removeItem("theme");
       return {
         ...state,
         token: "",
@@ -240,27 +253,10 @@ const authSlice = createSlice({
     builder.addCase(loginUser.fulfilled, (state, action) => {
       if (action.payload) {
         const user = jwtDecode(action.payload.body.accessToken);
-        switch (user.roles[0]) {
-          case "ROLE_STUDENT":
-              user.roles = "Ученик"
-            break;
-          case "ROLE_PARENTS":
-              user.roles = "Родитель"
-            break;
-          case "ROLE_TEACHER":
-              user.roles = "Преподаватель"
-            break;
-          case "ROLE_DIRECTOR":
-              user.roles = "Директор"
-            break;
-          case "ROLE_ADMIN":
-              user.roles = "Администратор"
-            break;
-            
-        }
         return {
           ...state,
           token: action.payload.body.accessToken,
+          theme:user.theme,
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
@@ -282,16 +278,24 @@ const authSlice = createSlice({
       };
     });
 
-    builder.addCase(getItemsMenu.fulfilled, (state, action) => {
-        return {...state,
-          listMenuItems: action.payload
-        };
-    });
-    builder.addCase(getItemsMenu.rejected, (state, action) => {
-      return {
-        listMenuItems: []
+    
+    builder.addCase(updateSelectedMenu.fulfilled, (state, action) => {
+      
+      return {...state,
+        listMenuItems: action.payload
       };
-    });
+  });
+    builder.addCase(getMainPageModules.fulfilled, (state, action) => {
+      return {...state,
+        listMainPageModule: action.payload
+      };
+  });
+  builder.addCase(setSelectedTheme.fulfilled, (state, action) => {
+    return {...state,
+      theme: action.payload
+    };
+  });
+  
   },
   
 });

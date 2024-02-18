@@ -1,29 +1,21 @@
-import { useDispatch, useSelector } from "react-redux";
-import { Link,useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 import verifyToken from "./verifyToken";
-import { setOnlineTime } from "../slices/authSlice";
-import authService from "./authService";
 
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-function RequireAuth({ children }) {
-
-  const dispatch = useDispatch();
+ function RequireAuth({ children }) {
+    const navigate = useNavigate()
     const auth = useSelector((state) => state.auth);
-
-    if (auth._id){
-        verifyToken(auth.token)
-        
-      }
-
-      
     
-    let location = useLocation();
-    if (!auth._id) {
-      
-
-      return <Link to="/" />;
-    }
-  
+    useEffect(() => {
+    if (localStorage.getItem("access")){
+      verifyToken(auth.token)
+      if(verifyToken(auth.token) === false){
+        navigate("/")
+      }
+      }if(!localStorage.getItem("access")){navigate("/") }
+  },[auth])
     return children;
   }
   export default RequireAuth;

@@ -62,6 +62,8 @@ public class AuthService {
     EmailValidator emailValidator;
     @Autowired
     ItemsMenuService itemsMenuService;
+    @Autowired
+    MainPageModuleService mainPageModuleService;
 
 
     @Value("${spring.mail.username}")
@@ -90,9 +92,10 @@ public class AuthService {
                 response.addCookie(cookie);
             }
         }
-
+        List<ItemsMenu> itemsMenus = userDetails.getItemsMenu().stream().toList();
+        ETheme theme = userDetails.getTheme();
         return ResponseEntity.ok()
-                .body(new AuthResponse(jwt));
+                .body(new AuthResponse(jwt, itemsMenus, theme));
     }
 
     public ResponseEntity<?> registerUser(@RequestBody CreateUserRequest createUserRequest) throws SQLException {
@@ -115,12 +118,15 @@ public class AuthService {
         Set<String> strRoles = createUserRequest.getRoles();
         Set<Role> roles = new HashSet<>();
         List<ItemsMenu> itemsMenus = new ArrayList<>();
+        List<MainPageModule> mainPageModules = new ArrayList<>();
+        user.setThemes(ETheme.BLACK);
 
 
         if (strRoles == null) {
             Role userRole = roleRepository.findByName(ERole.ROLE_STUDENT)
                     .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-            itemsMenus.addAll(itemsMenuService.setDefaultStudentItemsMenu());
+            itemsMenus.addAll(itemsMenuService.setDefaultUserItemsMenu());
+            mainPageModules.addAll(mainPageModuleService.setDefaultUserPageModule());
             roles.add(userRole);
         } else {
             strRoles.forEach(role -> {
@@ -132,16 +138,11 @@ public class AuthService {
 
 
                         break;
-                    case "ROLE_PARENTS":
-                        Role modRole = roleRepository.findByName(ERole.ROLE_PARENTS)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(modRole);
-
-                        break;
                     default:
                         Role userRole = roleRepository.findByName(ERole.ROLE_STUDENT)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        itemsMenus.addAll(itemsMenuService.setDefaultStudentItemsMenu());
+                        itemsMenus.addAll(itemsMenuService.setDefaultUserItemsMenu());
+                        mainPageModules.addAll(mainPageModuleService.setDefaultUserPageModule());
                         roles.add(userRole);
                 }
             });
@@ -149,6 +150,7 @@ public class AuthService {
 
         user.setRoles(roles);
         user.setItemsMenus(itemsMenus);
+        user.setMainPageModules(mainPageModules);
         userRepository.save(user);
 
         boolean isValidEmail = emailValidator.test(createUserRequest.getEmail());
@@ -180,9 +182,9 @@ public class AuthService {
 
         LocalDateTime expiresAt = confirmToken.get().getExpiresAt();
 
-        if (expiresAt.isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("Token is already expired!");
-        }
+//        if (expiresAt.isBefore(LocalDateTime.now())) {
+//            throw new IllegalStateException("Token is already expired!");
+//        }
         confirmationTokenService.setConfirmedAt(token);
         userDetailsService.enableUser(confirmToken.get().getUser().getEmail());
 
@@ -197,14 +199,52 @@ public class AuthService {
     }
 
     private String buildEmail(String name, String link) {
-        return "<div style=\"display: flex; justify-content: center; height: 10vw;  width: 90vw; " +
-                "background-color: rgb(0, 3, 2);\">" +
-        "<div style=\" display: flex; justify-content: center; text-align: center; " +
-                "height: 50vw;  width: 90vw; background-color: rgb(253, 253, 253);\">" +
-            "<div>" +
-                "<p style=\"font-size: 20px; font-weight: 700;\">Спасибо, за регистрацию на сайте," +name +" </p>" +
-                "<p>Чтобы завершить регистрацию, и активировать аккаунт, перейдите пожалуйста по ссылке ниже!</p>" +
-                "<a href=\""+ link +  "\"> Активировать аккаунт </a>  </div> </div>";
+        return
+                "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">"
+               +"<html lang=\"en\">"
+               + "<head>"
+                +  "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">"
+                  + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" +
+                  "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">" +
+
+                  "<title>активация</title>" +
+
+                  " <style type=\"text/css\">"
+                  + "</style>"
+                + "</head>"
+                + "<body style=\"margin:0; padding:0; background-color:#F2F2F2;\">"
+                  + "<center>"
+                    + "<table width=\"640\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"wrapper\" bgcolor=\"#FFFFFF\"> "
+                        +"<tr>"
+                          +"<td height=\"10\" style=\"font-size:10px; line-height:10px;\">&nbsp;</td>"
+                        +"</tr>"
+                        +"<tr>"
+                          + "<td align=\"center\" valign=\"top\">"
+
+                            + "<table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"container\"> "
+                                + "<tr>"
+                                    + "<td align=\"center\" valign=\"top\" style = \"background-color: rgb(0, 0, 0)\">"
+                                        + "<p style=\"font-size: 20px; font-weight: 700;  color: rgb(253, 253, 253)\">Спасибо, за регистрацию на сайте," +name +" </p>"
+
+                                   + "</td>"
+                                  + "</tr>"
+                                  + "<tr>"
+                                    + "<td align=\"center\" valign=\"top\">"
+                                        + "<p>Чтобы завершить регистрацию, и активировать аккаунт, перейдите пожалуйста по ссылке ниже!</p>"
+                                         + "<a style=\"font-size: 20px;\" href=\"" + link + "\"> Активировать аккаунт </a>  </div>"
+                                    + "</td>"
+                                  + "</tr>"
+                            + "</table>"
+
+                          + "</td>"
+                       + "</tr>"
+                        + "<tr>"
+                          + "<td height=\"10\" style=\"font-size:10px; line-height:10px;\">&nbsp;</td> "
+                        + "</tr>"
+                      + "</table>"
+                  + "</center>"
+                + "</body>"
+               + "</html>";
     }
     public ResponseEntity<?> refreshToken(@RequestBody HttpServletRequest request, HttpServletResponse response){
 

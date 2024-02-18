@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import Avatar from "react-avatar-edit";
 
 
-const Login = () => {
+const Register = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const auth = useSelector((state) => state.auth);
@@ -48,6 +48,7 @@ const onCrop = view =>{
     formData.append("roles", data.roles)
     formData.append("preview", preview)
       dispatch(registerUser(formData))
+      navigate("/")
     }
   
   return (
@@ -183,36 +184,6 @@ const onCrop = view =>{
           {(errors?.lastName) && (
             <p className={style.error}>{errors.lastName.message}</p>
           )}</div>)}
-            <div><h4 className={style.role}>Роль</h4></div>
-            <div className={style.checkbox_register}>
-            <label htmlFor='student'>Студент/ученик</label>
-            <input
-              
-              id='student'
-              type='radio'
-              value='ROLE_STUDENT'
-              {...register("roles",["ROLE_STUDENT"])}
-            />
-            <label htmlFor=''>Родитель</label>
-            <input
-              type='radio'
-              value='ROLE_PARENTS'
-              {...register("roles",['ROLE_PARENTS'])}
-            />
-              <label htmlFor=''>Учитель</label>
-             <input
-              type='radio'
-              value='ROLE_TEACHER'
-              {...register("roles",['ROLE_TEACHER'])}
-            />
-              <label htmlFor=''>Администратор</label>
-            <input
-              type='radio'
-              value='ROLE_ADMiN'
-              {...register("roles",['radio'])}
-            />
-
-</div>
 
         <div>
           <button className={style.btn} >Регистрация</button>
@@ -226,7 +197,7 @@ const onCrop = view =>{
   );
 };
 
-export default Login;
+export default Register;
 
 
 

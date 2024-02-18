@@ -32,7 +32,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<SimpleResponse> registerStudent(@RequestBody CreateUserRequest createUserRequest) throws SQLException {
+    public ResponseEntity<SimpleResponse> registerUser(@RequestBody CreateUserRequest createUserRequest) throws SQLException {
              if (userRepository.existsByEmail(createUserRequest.getEmail())) {
             throw new AlreadyExistException("Пользователь с таким e-mail уже существует!");
         }

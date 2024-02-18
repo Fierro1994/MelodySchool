@@ -1,20 +1,15 @@
 import { useDispatch, useSelector } from "react-redux";
-import styleprofile from "./profile.module.css";
+import setupStyles from "../stylesModules/setupStyles";
 
 const MyTable =() => {
-const dispatch = useDispatch();
-  const auth = useSelector((state) => state.auth);
-  
-  const onSubmit = (data) => {
-     
-    }
 
+  const style = setupStyles("mainstyle")
    
    return (
 
 <div>
-<form className={styleprofile.form_profile}>
-<table className={styleprofile.tablemain}>
+<form className={style.form_profile}>
+<table className={style.tablemain}>
   <thead>
       <tr>
         <th>Мой профиль</th>

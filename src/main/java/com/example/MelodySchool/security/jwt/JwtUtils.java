@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.sql.rowset.serial.SerialBlob;
 
 @Component
 public class JwtUtils {
@@ -57,6 +56,7 @@ public class JwtUtils {
         claims.put("roles",roles);
         claims.put("activateEmail", userDetails.getEnabled());
         claims.put("avatar", blobAsBytes);
+        claims.put("theme", userDetails.getTheme().name());
 
 
         return Jwts.builder()

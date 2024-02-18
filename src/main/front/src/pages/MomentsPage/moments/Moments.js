@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import Stories from "react-insta-stories";
 import {useNavigate } from "react-router-dom";
 import momentsData from "./MomentsStore/momentsData";
-import styles from "./moments.module.css";
-
 
 export default function Moments() {
   const [loading, setLoading] = useState(true);
